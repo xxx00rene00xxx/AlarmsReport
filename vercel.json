@@ -9,9 +9,53 @@
       "destination": "/alarmascp/alarmascp.html"
     },
     {
+      "source": "/alarmasca",
+      "destination": "/alarmasca/alarmasca.html"
+    },
+    {
+      "source": "/alarmasde",
+      "destination": "/alarmasde/alarmasde.html"
+    },
+    {
+      "source": "/alarmasdi",
+      "destination": "/alarmasdi/alarmasdi.html"
+    },	
+    {
+      "source": "/alarmasef",
+      "destination": "/alarmasef/alarmasef.html"
+    },	
+    {
+      "source": "/alarmasev",
+      "destination": "/alarmasev/alarmasev.html"
+    },		
+    {
+      "source": "/alarmashc",
+      "destination": "/alarmashc/alarmashc.html"
+    },
+    {
+      "source": "/alarmaslc",
+      "destination": "/alarmaslc/alarmaslc.html"
+    },	
+    {
+      "source": "/alarmasma",
+      "destination": "/alarmasma/alarmasma.html"
+    },
+    {
+      "source": "/alarmaspa",
+      "destination": "/alarmaspa/alarmaspa.html"
+    },	
+    {
       "source": "/alarmassg",
       "destination": "/alarmassg/alarmassg.html"
+    },	
+    {
+      "source": "/alarmasto",
+      "destination": "/alarmasto/alarmasto.html"
     },
+    {
+      "source": "/alarmasto",
+      "destination": "/alarmasto/alarmasto.html"
+    },	
     {
       "source": "/alarmastu",
       "destination": "/alarmastu/alarmastu.html"
@@ -21,5 +65,5 @@
       "destination": "/index.html"
     }
   ]
-
 }
+
