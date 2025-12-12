@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARAUCO|Alarmas Permanentes Activas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome for Icons (Webfont version, no SVG injection) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
+    <link rel="shortcut icon" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+             --sidebar-width: 280px;
+             --main-color: #696158; /* Naranja */
+             }
+
+        .container { display: flex; }
+
+        /* Sidebar Oculta con animaci�n JS */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background-color: var(--main-color);
+            transform: translateX(-100%); /* Oculta */
+            transition: transform 0.3s ease;
+            z-index: 50;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        /* Botones del men� */
+        /* A�ado estilos para los iconos de Lucide */
+        .sidebar a {
+            padding: 7.5px 25px;
+            font-weight: 600;
+            transition: background-color 0.5s;
+            display: flex; /* Para alinear el texto y el icono */
+            align-items: center;
+        }
+        .sidebar a:hover {
+            background-color: #BFB800; /* Naranja m�s oscuro */
+        }
+        
+        /* Bot�n de Hamburguesa */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: white;
+            padding: 7.5px 7.5px;
+            border-radius: 80%;
+            box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .menu-btn.open {
+            transform: translateX(calc(var(--sidebar-width) - 80px)) rotate(360deg);
+        }
+
+        /* Hero Section: Animaci�n de Desenfoque al Despliegue */
+        .hero-section {
+            height: 20vh;
+            background-image: url('https://i.postimg.cc/5y5CHdnr/ARAUCO-01-1.png');
+            background-repeat: no-repeat;
+            background-size: 50vh;
+            background-position: center;
+            position: relative;
+            transition: filter 0.5s ease;
+        }
+        .hero-section.blurred {
+            filter: blur(5px);
+        }
+
+        /* Animaci�n de Puntos de Entrada (Solo CSS para los puntos) */
+        .dot-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+        .dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: dot-entry 0.5s forwards;
+        }
+
+        @keyframes dot-entry {
+            0% { opacity: 1; transform: scale(0.1); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+
+
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F1F5F9; /* Slate 100 */
+        }
+        
+        /* Estilo para la barra de desplazamiento horizontal */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background-color: #BFB800; /* Red 600 */
+            opacity: 50;
+            border-radius: 4px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background-color: #Ffffff; /* Red 50 */
+            opacity: 50;
+        }
+
+        /* --- REGLAS CRÍTICAS PARA LA FIJACIÓN Y ALINEACIÓN --- */
+        
+        /* 1. Definición de anchos de columna consistentes */
+        /* Columna Fija: DÍAS ACTIVA */
+        .w-fixed-days {
+            min-width: 100px !important; 
+            width: 100px !important;
+        }
+
+        /* Columnas Largas: DESCRIPCIÓN, PLAN DE ACCIÓN */
+        .w-long-text {
+            min-width: 280px !important; 
+            width: 280px !important;
+            white-space: normal !important; /* Permite el salto de línea */
+        }
+
+        /* Columnas Medianas: MÓDULO, ÁREA, ACTIVA DESDE, RESPONSABLE, FECHA REPORTE */
+        .w-medium-col {
+            min-width: 160px !important; 
+            width: 160px !important;
+            white-space: nowrap;
+        }
+
+        /* 2. Forzar layout y ancho total de las tablas */
+        #header-table, #body-table {
+            table-layout: fixed;
+            /* Ancho total grande para asegurar el desbordamiento y el scroll horizontal */
+            width: 1600px; 
+        }
+
+        /* 3. Estilo para la columna fija (DÍAS ACTIVA) */
+        .sticky-col {
+            position: sticky !important;
+            left: 0 !important;
+            background-color: rgba(255, 255, 255, 0.95) !important; 
+            z-index: 10 !important; 
+        }
+
+        /* 4. Estilo para la cabecera fija (DÍAS ACTIVA) */
+        .sticky-header-col {
+            position: sticky !important;
+            left: 0 !important;
+            background-color: rgba(191, 184, 0, 0.01) !important;
+            z-index: 20 !important; 
+        }
+
+        /* Asegura que el texto en celdas largas se envuelva correctamente */
+        .text-wrap {
+            white-space: normal !important;
+        }
+    </style>
+
+    <!-- Importo Lucide para iconos, que son ideales para enlaces de men� -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+
+
+</head>
+<body class="text-slate-800">
+
+<!-- Sidebar Oculta -->
+    <aside class="sidebar flex flex-col pt-10 text-white" id="sidebar">
+        <h1 class="text-2xl font-bold p-5 text-center border-b border-[#ffffff]">Menú Principal</h1>
+             <h1 class="text-1 text-center border-b border-[#ffffff]"> Reporte Alarmas por áreas</h1>
+            <a href="https://alarms-report.vercel.app" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>Pantalla Principal</span>
+            </a>	
+        <nav class="flex-1 mt-0">  
+            <!-- ENLACES A�ADIDOS/ACTUALIZADOS -->
+			<a href="https://alarms-report.vercel.app/alarmasdi" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>032-Digestores</span>
+            </a>	
+			<a href="https://alarms-report.vercel.app/alarmaslc" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>033-Lavado y Clasificación</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmasma" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>051-Maquina</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmasto" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>061-Tall Oil</span>
+            </a>		
+			<a href="https://alarms-report.vercel.app/alarmasev" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>063-Evaporadores</span>
+            </a>		
+			<a href="https://alarms-report.vercel.app/alarmassg" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>064-Sistema de Gases</span>
+            </a>			
+			<a href="https://alarms-report.vercel.app/alarmascr" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>064-Caldera Recuperadora</span>
+            </a>	
+			<a href="https://alarms-report.vercel.app/alarmashc" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>065-Horno de Cal</span>
+            </a>			
+			<a href="https://alarms-report.vercel.app/alarmasca" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>066-Caustificación</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmascp" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>073-Caldera de Poder</span>
+            </a>
+			<a href="https://alarms-report.vercel.app/alarmastu" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>074-Gen. y Distribución</span>
+            </a>			
+			<a href="https://alarms-report.vercel.app/alarmaspa" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>082-Planta de Agua</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmasde" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>084-Desmineralizado</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmasef" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>085-Efluentes</span>
+            </a>				
+             <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
+             <h1 class="text-1 text-center border-b border-[#ffffff]">Reporte Alarmas por mayor tiempo Activa</h1>
+
+            </nav>
+        <footer class="p-5 text-sm text-cente opacity-70 border-t border-[#ffffff] mt-5">
+            <p class="text-sm">Desarrollado por ROL</p>
+			<p class="text-sm">Unidad DCS & Accionamiento</p>
+            </footer>
+    </aside>
+
+    <!-- Bot�n de Hamburguesa -->
+    <div class="menu-btn" id="menuBtn">
+        <svg class="w-6 h-6 text-[#696158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </div>
+
+    <!-- Contenedor de Puntos de Animaci�n -->
+    <div class="dot-container" id="dotContainer"></div>
+<div class="p-4 md:p-8">
+    <!-- Contenido Principal -->
+    <main class="main-content flex-1">
+        <!-- Hero Section: Desenfoque Din�mico -->
+        <section class="hero-section flex items-end justify-end" id="heroSection">
+            <h1 class="text-2xl font-extrabold text-white text-shadow-lg p-4 bg-black bg-opacity-60 rounded-1g">
+                Sistema de Gestión de Alarmas
+            </h1>
+        </section>
+
+
+
+
+    <!-- Header -->
+    <header class="mb-8 border-b pb-4 border-[#BFB800]">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <h1 class="text-3xl font-extrabold text-[#696158] flex items-center">
+                <i class="fas fa-history mr-3"></i>
+                Reporte de Alarmas Activas por Mayor Tiempo
+            </h1>
+        </div>
+        <p class="text-gray-700 mt-1">Listado completo de alarmas activas, ordenadas por el tiempo que llevan sin normalizarse.</p>
+    </header>
+
+    <!-- Indicador de Errores -->
+    <div id="error-message" class="hidden p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-100 border border-red-300 transition-all duration-300" role="alert">
+        <!-- Contenido del error se inserta aquí -->
+    </div>
+
+    <!-- KPIs Section (Métricas Clave de Antigüedad) -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg gap-6 mb-8">
+        <!-- KPI 1: Alarmas Abiertas de Larga Duración -->
+        <div class="bg-white shadow-lg rounded-xl p-5 border-l-4 border-[#BFB800] transition-transform duration-300 hover:scale-[1.02]">
+            <p class="text-sm font-medium text-gray-600">Total Alarmas Activas Filtradas</p>
+            <p id="total-active-kpi" class="text-3xl font-bold text-[#BFB800] mt-1">...</p>
+        </div>
+
+        <!-- KPI 2: Promedio de Días Activa -->
+        <div class="bg-white shadow-lg rounded-xl p-5 border-l-4 border-[#BFB800] transition-transform duration-300 hover:scale-[1.02]">
+            <p class="text-sm font-medium text-gray-600">Promedio Días Activa (Filtradas)</p>
+            <p id="average-days-kpi" class="text-3xl font-bold text-[#BFB800] mt-1">...</p>
+        </div>
+
+        <!-- KPI 3: Última Sincronización -->
+        <div class="bg-white shadow-lg rounded-xl p-5 border-l-4 border-gray-500 transition-transform duration-300 hover:scale-[1.02] hidden">
+            <p id="last-updated-kpi" class="text-lg font-bold text-gray-900 mt-1">...</p>
+        </div>
+    </section>
+
+    <!-- Filter Controls Section (Selector de Fecha y Área) -->
+    <section class="bg-white shadow-xl rounded-xl p-6 mb-8 grid grid-cols-1 md:grid-cols-2 gap-6 border-l-4 border-[#BFB800]">
+        <!-- Dropdown for Report Date -->
+        <div>
+            <label for="report-date-filter" class="block text-sm font-medium text-gray-700 mb-2">
+                Filtrar por Fecha de Reporte
+            </label>
+            <select id="report-date-filter" class="w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-red-500 focus:border-red-500">
+                <option value="">Cargando fechas...</option>
+            </select>
+        </div>
+
+        <!-- Dropdown for Area Root -->
+        <div>
+            <label for="area-root-filter" class="block text-sm font-medium text-gray-700 mb-2">
+                Filtrar por Área Principal (Texto antes de '/')
+            </label>
+            <select id="area-root-filter" class="w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-red-500 focus:border-red-500">
+                <option value="">Cargando áreas...</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Tabla de Alarmas con mayor tiempo activa (Estructura de dos tablas para cabecera fija) -->
+    <section class="bg-white shadow-xl rounded-xl p-6 transition-shadow duration-300 hover:shadow-2xl border-l-4 border-[#BFB800]">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center">
+            <i class="fas fa-table mr-3 text-[#BFB800]"></i>
+            Listado Completo (Filtrado y Ordenado)
+        </h2>
+        
+        <!-- Contenedor de la Cabecera (Fija en el top) -->
+        <div class="overflow-x-hidden" id="header-scroll-container">
+            <table class="divide-y divide-gray-400" id="header-table">
+                <thead style="background-color: rgba(191, 184, 0, 0.6);">
+                    <tr>
+                        <!-- DÍAS ACTIVA (Fija) -->
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider sticky-header-col w-fixed-days">DÍAS ACTIVA</th>
+                        
+                        <!-- MÓDULO (Mediana) -->
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider w-medium-col">MÓDULO</th>
+                        
+                        <!-- DESCRIPCIÓN (Larga) -->
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider w-long-text">DESCRIPCIÓN</th>
+                        
+                        <!-- ÁREA (Mediana) -->
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider w-medium-col">ÁREA</th>
+                        
+                        <!-- ACTIVA DESDE (Mediana) -->
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider w-medium-col">ACTIVA DESDE</th>
+                        
+                        <!-- RESPONSABLE (Mediana) -->
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider w-medium-col">RESPONSABLE</th>
+                        
+                        <!-- FECHA REPORTE (Mediana) -->
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider w-medium-col">FECHA REPORTE</th>
+                        
+                        <!-- PLAN DE ACCIÓN (Larga) -->
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-700 uppercase tracking-wider w-long-text">PLAN DE ACCIÓN</th> 
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+        <!-- Contenedor del Cuerpo (Scroll vertical y horizontal) -->
+        <div class="max-h-[600px] overflow-y-auto overflow-x-auto" id="body-scroll-container">
+            <table class="divide-y divide-gray-200" id="body-table">
+                <tbody id="long-active-alarms-table-body" class="bg-white divide-y divide-[#696158]">
+                    <!-- Fila de carga inicial (colspan 8) -->
+                    <tr><td colspan="8" class="p-8 text-center text-gray-500">Cargando datos del Google Sheet...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+            <!-- Footer -->
+        <footer class="text-center text-slate-400 py-8 border-t border-slate-200 mt-12">
+            <p class="text-sm">Desarrollado por ROL</p>
+			<p class="text-sm">Unidad DCS & Accionamiento</p>
+        </footer>
+    </div>
+
+    <script>
+
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menuBtn');
+        const heroSection = document.getElementById('heroSection');
+        const dotContainer = document.getElementById('dotContainer');
+
+        // --- CONSTANTES DE DATOS ---
+        const GOOGLE_SHEET_ID = '1r0TFLbvaYjgljlb0fpBCKBawWGfWsh7q';
+        const GOOGLE_SHEET_NAME = 'Alarmas Abiertas'; 
+        const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(GOOGLE_SHEET_NAME)}`;
+        
+        // Índices de columnas (Basado en la hoja de Google Sheets, A=0, B=1, etc.)
+        const MODULE_COLUMN_INDEX = 0;          // Columna A
+        const DESCRIPTION_COLUMN_INDEX = 1;     // Columna B
+        const AREA_COLUMN_INDEX = 2;            // Columna C (ÁREA)
+        const ACTIVE_SINCE_COLUMN_INDEX = 3;    // Columna D
+        const DAYS_ACTIVE_COLUMN_INDEX = 4;     // Columna E (DIAS ACTIVA)
+        const RESPONSIBLE_COLUMN_INDEX = 5;     // Columna F
+        const REPORT_DATE_COLUMN_INDEX = 6;     // Columna G (FECHA REPORTE)
+        const ACTION_PLAN_COLUMN_INDEX = 7;     // Columna H (PLAN DE ACCIÓN)
+
+        // Almacenamiento de datos brutos
+        let rawGsData = []; 
+
+        // Variables de estado de filtro
+        let selectedReportDate = null; 
+        let selectedAreaRoot = null; 
+
+        function createDot(x, y) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            dot.style.left = `${x}px`;
+            dot.style.top = `${y}px`;
+            dot.style.animationDelay = `${Math.random() * 0.2}s`;
+            dotContainer.appendChild(dot);
+            
+            // Eliminar el punto despu�s de la animaci�n
+            dot.addEventListener('animationend', () => dot.remove());
+        }
+
+        function toggleSidebar(e) {
+            const isOpen = sidebar.classList.toggle('open');
+            menuBtn.classList.toggle('open');
+            heroSection.classList.toggle('blurred', isOpen);
+
+            if (isOpen) {
+                // Disparar animaci�n de puntos desde el bot�n
+                const rect = menuBtn.getBoundingClientRect();
+                const numDots = 15;
+                for (let i = 0; i < numDots; i++) {
+                    // Distribuci�n alrededor del bot�n
+                    const angle = (i / numDots) * 2 * Math.PI;
+                    const radius = 30; // Radio de dispersi�n inicial
+                    const x = rect.left + rect.width / 2 + Math.cos(angle) * radius;
+                    const y = rect.top + rect.height / 2 + Math.sin(angle) * radius;
+                    createDot(x, y);
+                }
+            }
+        }
+
+        menuBtn.addEventListener('click', toggleSidebar);
+        
+        // Cierro el men� si se hace clic en cualquier enlace (comportamiento est�ndar de navegaci�n)
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                menuBtn.classList.remove('open');
+                heroSection.classList.remove('blurred');
+            });
+        });
+
+
+
+
+
+
+
+        /**
+         * Inicializa la sincronización del scroll horizontal entre la cabecera y el cuerpo.
+         */
+        function initializeScrollSynchronization() {
+            const headerScroll = document.getElementById('header-scroll-container');
+            const bodyScroll = document.getElementById('body-scroll-container');
+
+            // Sincronizar scroll del cuerpo hacia la cabecera
+            bodyScroll.addEventListener('scroll', () => {
+                headerScroll.scrollLeft = bodyScroll.scrollLeft;
+            });
+            
+            // Sincronizar scroll de la cabecera hacia el cuerpo 
+            headerScroll.addEventListener('scroll', () => {
+                bodyScroll.scrollLeft = headerScroll.scrollLeft;
+            });
+        }
+        
+        /**
+         * Extrae la raíz del área (parte antes de la primera '/').
+         */
+        function extractAreaRoot(areaString) {
+            if (typeof areaString !== 'string' || !areaString) return '';
+            const slashIndex = areaString.indexOf('/');
+            if (slashIndex === -1) {
+                return areaString.trim();
+            }
+            return areaString.substring(0, slashIndex).trim();
+        }
+
+        /**
+         * Convierte el texto JSON de Google Sheet a un array de filas.
+         */
+        function parseGoogleSheetJson(jsonText) {
+            try {
+                // Eliminar el prefijo/sufijo de la API de Google Visualization
+                const start = jsonText.indexOf('{');
+                const end = jsonText.lastIndexOf('}');
+                if (start === -1 || end === -1) {
+                    throw new Error("Formato JSON de Google Sheets inválido.");
+                }
+                const jsonString = jsonText.substring(start, end + 1);
+                
+                const data = JSON.parse(jsonString);
+                if (data.table && data.table.rows) {
+                    return data.table.rows;
+                }
+                return [];
+            } catch (e) {
+                console.error("Error al parsear JSON de Google Sheet:", e);
+                throw new Error("Error al procesar los datos recibidos.");
+            }
+        }
+
+        /**
+         * Implementación de backoff exponencial para `fetch`.
+         */
+        async function fetchWithBackoff(url, maxRetries = 3) {
+            let retries = 0;
+            let lastError = null;
+
+            while (retries < maxRetries) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const text = await response.text();
+                    return text;
+                } catch (error) {
+                    lastError = error;
+                    retries++;
+                    console.warn(`Intento fallido #${retries}. Reintentando en ${Math.pow(2, retries)}s...`, error.message);
+                    if (retries < maxRetries) {
+                        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries) * 1000));
+                    }
+                }
+            }
+            throw new Error(`Fallo al obtener datos después de ${maxRetries} intentos. Último error: ${lastError?.message}`);
+        }
+
+        /**
+         * Obtiene los datos de Google Sheets y actualiza el estado.
+         */
+        async function fetchGoogleSheetData() {
+            // Se elimina la lógica del status-badge
+            // const statusBadge = document.getElementById('status-badge');
+            // statusBadge.textContent = 'Sincronizando GS...';
+            // statusBadge.className = 'mt-2 md:mt-0 text-sm font-medium px-4 py-1 rounded-full bg-yellow-100 text-yellow-800 shadow-md';
+
+            const text = await fetchWithBackoff(GOOGLE_SHEET_URL);
+            const data = parseGoogleSheetJson(text);
+            
+            // statusBadge.textContent = 'Datos Sincronizados OK';
+            // statusBadge.className = 'mt-2 md:mt-0 text-sm font-medium px-4 py-1 rounded-full bg-green-100 text-green-800 shadow-md';
+            
+            document.getElementById('last-updated-kpi').textContent = new Date().toLocaleTimeString('es-ES');
+            return data;
+        }
+
+        /**
+         * Simplifica la validación de la fecha.
+         */
+        function validateGsDate(gsDateFormatted) {
+            if (typeof gsDateFormatted === 'string' && gsDateFormatted.length > 0) {
+                return gsDateFormatted;
+            }
+            return null;
+        }
+
+        /**
+         * Procesa y renderiza la tabla completa de alarmas activas, aplicando filtros y ordenando.
+         */
+        function processAndRenderLongestActiveAlarms(allAlarmsData) {
+            const tbody = document.getElementById('long-active-alarms-table-body');
+            const totalActiveKpi = document.getElementById('total-active-kpi');
+            const averageDaysKpi = document.getElementById('average-days-kpi');
+            
+            // 1. Filtrar solo alarmas con DIAS ACTIVA (Columna E) definido y > 0
+            let filteredAlarms = allAlarmsData.filter(row => 
+                row.c[DAYS_ACTIVE_COLUMN_INDEX] && 
+                row.c[DAYS_ACTIVE_COLUMN_INDEX].v !== null && 
+                (row.c[DAYS_ACTIVE_COLUMN_INDEX].v || 0) > 0
+            );
+
+            // 2. Aplicar filtros (si existen)
+            if (selectedReportDate) {
+                filteredAlarms = filteredAlarms.filter(row => {
+                    const gsDateFormatted = row.c[REPORT_DATE_COLUMN_INDEX]?.f;
+                    // Aseguramos que solo comparamos la parte de la fecha
+                    const dateOnly = gsDateFormatted ? gsDateFormatted.split(' ')[0] : null;
+                    return dateOnly === selectedReportDate;
+                });
+            }
+            if (selectedAreaRoot) {
+                filteredAlarms = filteredAlarms.filter(row => {
+                    const areaString = row.c[AREA_COLUMN_INDEX]?.v;
+                    const root = extractAreaRoot(areaString);
+                    return root === selectedAreaRoot;
+                });
+            }
+
+            // 3. Ordenar por DIAS ACTIVA (Columna E) descendente
+            filteredAlarms.sort((a, b) => {
+                const daysA = a.c[DAYS_ACTIVE_COLUMN_INDEX] ? a.c[DAYS_ACTIVE_COLUMN_INDEX].v : 0;
+                const daysB = b.c[DAYS_ACTIVE_COLUMN_INDEX] ? b.c[DAYS_ACTIVE_COLUMN_INDEX].v : 0;
+                return daysB - daysA; 
+            });
+
+            // 4. Calcular KPIs (basado en los datos filtrados)
+            const totalActiveCount = filteredAlarms.length;
+            let totalDays = 0;
+            filteredAlarms.forEach(alarm => {
+                totalDays += alarm.c[DAYS_ACTIVE_COLUMN_INDEX]?.v || 0;
+            });
+            const averageDays = totalActiveCount > 0 ? (totalDays / totalActiveCount).toFixed(1) : 0;
+
+            totalActiveKpi.textContent = totalActiveCount.toLocaleString('es-ES');
+            averageDaysKpi.textContent = `${averageDays} días`;
+            
+            // 5. Generar el HTML de la tabla
+            let tableHtml = '';
+            const COLSPAN_COUNT = 8; 
+
+            if (filteredAlarms.length === 0) {
+                tableHtml = `<tr><td colspan="${COLSPAN_COUNT}" class="p-8 text-center text-gray-500">No hay alarmas activas que coincidan con los filtros aplicados.</td></tr>`;
+            } else {
+                filteredAlarms.forEach(row => {
+                    const daysValue = row.c[DAYS_ACTIVE_COLUMN_INDEX]?.v || 0;
+                    const daysActive = row.c[DAYS_ACTIVE_COLUMN_INDEX]?.f || String(daysValue) || 'N/A';
+                    const module = row.c[MODULE_COLUMN_INDEX]?.v || '';
+                    const description = row.c[DESCRIPTION_COLUMN_INDEX]?.v || '';
+                    const areaFull = row.c[AREA_COLUMN_INDEX]?.v || '';
+                    const areaDisplay = extractAreaRoot(areaFull); 
+                    const responsible = row.c[RESPONSIBLE_COLUMN_INDEX]?.v || ''; 
+                    const actionPlan = row.c[ACTION_PLAN_COLUMN_INDEX]?.v || 'Sin plan'; 
+                    
+                    // --- LÓGICA DE FORMATO DE FECHA (CORREGIDA V3: Fallback a 'v' si 'f' está ausente) ---
+                    
+                    // ACTIVA DESDE (Columna D): Se elimina la hora, dejando solo la fecha (Ej: Mon Apr 07, 2025)
+                    const activeSinceData = row.c[ACTIVE_SINCE_COLUMN_INDEX];
+                    // Intenta usar 'f' (formato) primero, luego 'v' (valor) si es una cadena y si 'f' falla.
+                    let activeSinceRaw = activeSinceData?.f || (typeof activeSinceData?.v === 'string' ? activeSinceData.v : null);
+                    let activeSince = 'N/A';
+                    
+                    if (activeSinceRaw) {
+                        // Dividir por espacios y tomar las primeras 4 partes que componen la fecha completa.
+                        // El formato esperado es: [DayOfWeek] [Month] [DayOfMonth], [Year] [Time]
+                        const parts = activeSinceRaw.split(' ');
+                        if (parts.length >= 4) {
+                            // Reúne las primeras 4 partes para obtener la fecha sin la hora
+                            activeSince = parts.slice(0, 4).join(' '); 
+                        } else {
+                            // Si no tiene el formato esperado, mostramos el valor crudo
+                            activeSince = activeSinceRaw;
+                        }
+                    }
+                    
+                    // FECHA REPORTE (Columna G): Se muestra la fecha COMPLETA (con hora si la contiene)
+                    const reportDateRaw = row.c[REPORT_DATE_COLUMN_INDEX]?.f;
+                    const reportDate = reportDateRaw || 'N/A'; 
+                    
+                    // --- FIN LÓGICA DE FORMATO DE FECHA ---
+
+                    // Lógica para resaltar el texto según los días activa
+                    let daysClasses = 'text-gray-900';
+                    if (daysValue > 30) {
+                        daysClasses = 'font-extrabold text-red-700'; 
+                    } else if (daysValue > 7) {
+                        daysClasses = 'font-semibold text-amber-700';
+                    }
+
+                    tableHtml += `
+                    
+                        <tr class="hover:bg-[#BFB800]/60 transition-colors duration-150">
+                            <!-- DÍAS ACTIVA (Fija) -->
+                            <td class="px-4 py-3 text-sm ${daysClasses} sticky-col w-fixed-days text-center">${daysActive}</td>
+                            
+                            <!-- MÓDULO (Mediana) -->
+                            <td class="px-4 py-3 text-sm text-gray-700 font-medium w-medium-col text-center">${module}</td>
+                            
+                            <!-- DESCRIPCIÓN (Larga) -->
+                            <td class="px-4 py-3 text-sm text-gray-700 w-long-text text-wrap text-center">${description}</td>
+                            
+                            <!-- ÁREA (Mediana) -->
+                            <td class="px-4 py-3 text-sm text-gray-700 w-medium-col text-center">${areaDisplay}</td>
+                            
+                            <!-- ACTIVA DESDE (Mediana) -->
+                            <td class="px-4 py-3 text-sm text-gray-700 w-medium-col text-center">${activeSince}</td>
+                            
+                            <!-- RESPONSABLE (Mediana) -->
+                            <td class="px-4 py-3 text-sm text-gray-700 w-medium-col text-center">${responsible}</td>
+                            
+                            <!-- FECHA REPORTE (Mediana) -->
+                            <td class="px-4 py-3 text-sm text-gray-700 w-medium-col text-center">${reportDate}</td>
+                            
+                            <!-- PLAN DE ACCIÓN (Larga) -->
+                            <td class="px-4 py-3 text-sm text-gray-700 w-long-text text-wrap text-center">${actionPlan}</td> 
+                        </tr>
+                    `;
+                });
+            }
+
+            // 6. Actualizar el DOM
+            tbody.innerHTML = tableHtml;
+        }
+        
+        /**
+         * Wrapper para actualizar los filtros y re-renderizar.
+         */
+        window.updateFilters = function() {
+            selectedReportDate = document.getElementById('report-date-filter').value || null;
+            selectedAreaRoot = document.getElementById('area-root-filter').value || null;
+            processAndRenderLongestActiveAlarms(rawGsData);
+        }
+
+        /**
+         * Llena el dropdown de fechas de reporte con valores únicos, quitando la hora.
+         * NOTA: Para el filtro, solo usamos la parte de la fecha (DD/MM/YYYY) para la selección.
+         */
+        function populateReportDateDropdown(allAlarmsData) {
+            const dateFilterInput = document.getElementById('report-date-filter');
+            const uniqueDates = new Set();
+            
+            allAlarmsData.forEach(row => {
+                const gsDateFormatted = row.c[REPORT_DATE_COLUMN_INDEX]?.f;
+                const validatedDate = validateGsDate(gsDateFormatted); 
+                if (validatedDate) {
+                    // Quitamos la hora para la opción del filtro
+                    const dateOnly = validatedDate.split(' ')[0];
+                    uniqueDates.add(dateOnly);
+                }
+            });
+
+            const sortedDates = Array.from(uniqueDates).sort((a, b) => {
+                // Para ordenar correctamente, necesitamos la fecha completa si es posible.
+                // Usaremos un truco de JS Date para ordenar las cadenas DD/MM/YYYY.
+                const parseDate = (s) => {
+                    const parts = s.split('/');
+                    // Intenta parsear a YYYY-MM-DD para una comparación fiable
+                    if (parts.length === 3) {
+                       return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                    }
+                    return new Date(s);
+                };
+
+                const timeA = parseDate(a).getTime();
+                const timeB = parseDate(b).getTime();
+                
+                // Si alguna fecha es inválida, se mantendrá el orden original (o fallará)
+                if (isNaN(timeA) || isNaN(timeB)) return 0;
+                
+                return timeB - timeA; 
+            });
+
+            let optionsHtml = '<option value="">-- Todos los Reportes --</option>';
+            sortedDates.forEach(dateStr => {
+                optionsHtml += `<option value="${dateStr}">${dateStr}</option>`;
+            });
+
+            dateFilterInput.innerHTML = optionsHtml;
+            dateFilterInput.addEventListener('change', window.updateFilters);
+        }
+        
+        /**
+         * Llena el dropdown de áreas principales con valores únicos.
+         */
+        function populateAreaRootDropdown(allAlarmsData) {
+            const areaFilterInput = document.getElementById('area-root-filter');
+            const uniqueAreaRoots = new Set();
+            
+            allAlarmsData.forEach(row => {
+                const areaString = row.c[AREA_COLUMN_INDEX]?.v;
+                const root = extractAreaRoot(areaString);
+                if (root) {
+                    uniqueAreaRoots.add(root);
+                }
+            });
+
+            const sortedAreas = Array.from(uniqueAreaRoots).sort();
+
+            let optionsHtml = '<option value="">-- Todas las Áreas --</option>';
+            sortedAreas.forEach(areaStr => {
+                optionsHtml += `<option value="${areaStr}">${areaStr}</option>`;
+            });
+
+            areaFilterInput.innerHTML = optionsHtml;
+            areaFilterInput.addEventListener('change', window.updateFilters);
+        }
+
+        /**
+         * Función principal de inicialización.
+         */
+        async function initLongestActiveDashboard() {
+            document.getElementById('total-active-kpi').textContent = '...';
+            document.getElementById('average-days-kpi').textContent = '...';
+            document.getElementById('last-updated-kpi').textContent = '...';
+
+            try {
+                // 1. Obtener datos de Google Sheets
+                rawGsData = await fetchGoogleSheetData();
+                
+                // 2. Inicializar Dropdowns
+                populateReportDateDropdown(rawGsData);
+                populateAreaRootDropdown(rawGsData); 
+                
+                // 3. Primer renderizado
+                window.updateFilters();
+                
+                // 4. Inicializar la sincronización de scroll
+                initializeScrollSynchronization();
+
+                // Se eliminaron las actualizaciones del status-badge en el éxito.
+
+            } catch (error) {
+                console.error("Error grave en initLongestActiveDashboard:", error);
+                
+                document.getElementById('total-active-kpi').textContent = 'ERROR';
+                document.getElementById('average-days-kpi').textContent = 'ERROR';
+                // Se eliminaron las actualizaciones del status-badge en el error.
+
+                document.getElementById('error-message').textContent = `Error al cargar datos: ${error.message}. Verifica el ID/Nombre de la hoja de cálculo y su acceso público.`;
+                document.getElementById('error-message').classList.remove('hidden');
+
+                const COLSPAN_COUNT = 8;
+                const errorHtml = `
+                    <tr>
+                        <td colspan="${COLSPAN_COUNT}" class="p-8 text-center text-gray-700 font-bold">
+                            ERROR: No se pudieron cargar los datos de Google Sheets.
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('long-active-alarms-table-body').innerHTML = errorHtml;
+            }
+        }
+
+        // Ejecutar al cargar la ventana
+        window.onload = initLongestActiveDashboard;
+    </script>
+</body>
+</html>
