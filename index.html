@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Principal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
+    <link rel="shortcut icon" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --main-color: #696158; /* Naranja */
+        }
+        body { margin: 0; font-family: 'Inter', sans-serif; background-color: #ffffff; }
+        .container { display: flex; }
+
+        /* Sidebar Oculta con animaci�n JS */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background-color: var(--main-color);
+            transform: translateX(-100%); /* Oculta */
+            transition: transform 0.3s ease;
+            z-index: 50;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        /* Botones del men� */
+        /* A�ado estilos para los iconos de Lucide */
+        .sidebar a {
+            padding: 7.5px 25px;
+            font-weight: 600;
+            transition: background-color 0.5s;
+            display: flex; /* Para alinear el texto y el icono */
+            align-items: center;
+        }
+        .sidebar a:hover {
+            background-color: #BFB800; /* Naranja m�s oscuro */
+        }
+        
+        /* Bot�n de Hamburguesa */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: white;
+            padding: 7.5px 7.5px;
+            border-radius: 80%;
+            box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .menu-btn.open {
+            transform: translateX(calc(var(--sidebar-width) - 80px)) rotate(360deg);
+        }
+
+        /* Hero Section: Animaci�n de Desenfoque al Despliegue */
+        .hero-section {
+            height: 60vh;
+            background-image: url('https://i.postimg.cc/5y5CHdnr/ARAUCO-01-1.png');
+            background-repeat: no-repeat;
+            background-size: auto;
+            background-position: center;
+            position: relative;
+            transition: filter 0.5s ease;
+        }
+        .hero-section.blurred {
+            filter: blur(5px);
+        }
+
+        /* Animaci�n de Puntos de Entrada (Solo CSS para los puntos) */
+        .dot-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+        .dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: dot-entry 0.5s forwards;
+        }
+
+        @keyframes dot-entry {
+            0% { opacity: 1; transform: scale(0.1); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+    </style>
+    <!-- Importo Lucide para iconos, que son ideales para enlaces de men� -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="flex">
+
+    <!-- Sidebar Oculta -->
+    <aside class="sidebar flex flex-col pt-10 text-white" id="sidebar">
+        <h1 class="text-2xl font-bold p-5 text-center border-b border-[#ffffff]">Menú Principal</h1>
+             <h1 class="text-1 text-center border-b border-[#ffffff]"> Reporte Alarmas por áreas</h1>
+        <nav class="flex-1 mt-0">  
+            <!-- ENLACES A�ADIDOS/ACTUALIZADOS -->
+            <a href="https://www.google.com" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>Google (Externo)</span>
+            </a>
+            <a href="https://www.wikipedia.org" target="_blank" class="block flex items-center justify-center p-2">
+                <!-- Icono de Servicios (Gear) -->
+              <span>Wikipedia (Externo)</span>
+            </a>
+            <a href="#content-section" class="block flex items-center justify-center p-2">
+                <!-- Icono de Clientes (Users) -->
+                <span>Ir a Contenido (Interno)</span>
+            </a>
+            <a href="https://developers.google.com/gemini" target="_blank" class="block flex items-center justify-center p-2">
+                <!-- Icono de Blog (Pencil) -->
+                <span>Docs Gemini (Externo)</span>
+            </a>
+            <a href="#" class="block flex items-center justify-center p-2">
+                <!-- Icono de Test (Check) -->
+                <span>Enlace Ficticio</span>
+            </a>
+             <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
+             <h1 class="text-1 text-center border-b border-[#ffffff]">Reporte Alarmas por mayor tiempo Activa</h1>
+
+            </nav>
+        <footer class="p-5 text-sm text-cente opacity-70 border-t border-[#ffffff] mt-5">
+            Unidad de DCS & Accionamiento
+            Generado por ROL
+        </footer>
+    </aside>
+
+    <!-- Bot�n de Hamburguesa -->
+    <div class="menu-btn" id="menuBtn">
+        <svg class="w-6 h-6 text-[#696158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </div>
+
+    <!-- Contenedor de Puntos de Animaci�n -->
+    <div class="dot-container" id="dotContainer"></div>
+
+    <!-- Contenido Principal -->
+    <main class="main-content flex-1">
+        <!-- Hero Section: Desenfoque Din�mico -->
+        <section class="hero-section flex items-end justify-end" id="heroSection">
+            <h1 class="text-5xl font-extrabold text-white text-shadow-lg p-4 bg-black bg-opacity-60 rounded-1g">
+                Sistema de Gestión de Alarmas
+            </h1>
+        </section>
+
+        <!-- Secci�n de Contenido con Ancla -->
+        <div class="p-8 bg-white" id="content-section">
+            <h2 class="text-3xl font-semibold text-[#696158] mb-6 border-b pb-2">Reporte Alarmas Planta Constitución</h2>
+            <p class="text-[#696158] mb-4">Esta plataforma permite acceder a toda la información relacionada a Alarmas del Sistema de Control Distribuido de Planta.</p>
+            <p class="text-[#696158]">Utiliza la barra lateral a toda la información.</p>
+        </div>
+    </main>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menuBtn');
+        const heroSection = document.getElementById('heroSection');
+        const dotContainer = document.getElementById('dotContainer');
+
+        function createDot(x, y) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            dot.style.left = `${x}px`;
+            dot.style.top = `${y}px`;
+            dot.style.animationDelay = `${Math.random() * 0.2}s`;
+            dotContainer.appendChild(dot);
+            
+            // Eliminar el punto despu�s de la animaci�n
+            dot.addEventListener('animationend', () => dot.remove());
+        }
+
+        function toggleSidebar(e) {
+            const isOpen = sidebar.classList.toggle('open');
+            menuBtn.classList.toggle('open');
+            heroSection.classList.toggle('blurred', isOpen);
+
+            if (isOpen) {
+                // Disparar animaci�n de puntos desde el bot�n
+                const rect = menuBtn.getBoundingClientRect();
+                const numDots = 15;
+                for (let i = 0; i < numDots; i++) {
+                    // Distribuci�n alrededor del bot�n
+                    const angle = (i / numDots) * 2 * Math.PI;
+                    const radius = 30; // Radio de dispersi�n inicial
+                    const x = rect.left + rect.width / 2 + Math.cos(angle) * radius;
+                    const y = rect.top + rect.height / 2 + Math.sin(angle) * radius;
+                    createDot(x, y);
+                }
+            }
+        }
+
+        menuBtn.addEventListener('click', toggleSidebar);
+        
+        // Cierro el men� si se hace clic en cualquier enlace (comportamiento est�ndar de navegaci�n)
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                menuBtn.classList.remove('open');
+                heroSection.classList.remove('blurred');
+            });
+        });
+    </script>
+</body>
+</html>

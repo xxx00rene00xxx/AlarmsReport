@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>Dashboard de Gestión de Alarmas: Análisis de Frecuencia</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome for Icons (Webfont version, no SVG injection) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
+    <link rel="shortcut icon" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
+    <!-- Embedded Styles for Chart Containers -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        :root {
+            --sidebar-width: 280px;
+            --main-color: #696158; /* Naranja */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff; /* Slate 100 */
+        }
+
+        /* Chart Container Strategy: Alturas corregidas */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%; 
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Altura para móvil */
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px; /* Altura para escritorio/tablet */
+            }
+        }
+        
+        /* Custom Scrollbar and Fixed Height for the table container */
+        .table-container {
+            /* ALTURA FIJA PARA SCROLL VERTICAL */
+            max-height: 600px; 
+            overflow-y: auto; 
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 8px; /* Vertical width */
+            height: 8px; /* Horizontal height */
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        
+        /* Estilo para el mensaje de error del dashboard dinámico */
+        #error-message {
+            color: #ef4444; /* Rojo Tailwind 500 */
+            font-weight: 600;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border: 1px solid #fca5a5;
+            background-color: #fef2f2;
+            border-radius: 0.5rem;
+            display: none; 
+            font-size: 0.75rem;
+        }
+        
+        /* Estilos para estado de la tabla de pendientes */
+        .status-badge {
+           /* display: inline-flex; */
+            display: inline-block;
+            align-items: center;
+            padding: 0.25rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            line-height: 1;
+        }
+        .status-critical { background-color: #fee2e2; color: #dc2626; } /* Red */
+        .status-review { background-color: #ffedd5; color: #f97316; } /* Orange */
+        .status-inprogress { background-color: #d1fae5; color: #059669; } /* Green */
+         /* Sidebar Oculta con animaci�n JS */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background-color: var(--main-color);
+            transform: translateX(-100%); /* Oculta */
+            transition: transform 0.3s ease;
+            z-index: 50;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        /* Botones del men� */
+        /* A�ado estilos para los iconos de Lucide */
+        .sidebar a {
+            padding: 7.5px 25px;
+            font-weight: 600;
+            transition: background-color 0.5s;
+            display: flex; /* Para alinear el texto y el icono */
+            align-items: center;
+        }
+        .sidebar a:hover {
+            background-color: #BFB800; /* Naranja m�s oscuro */
+        }
+        
+        /* Bot�n de Hamburguesa */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: white;
+            padding: 7.5px 7.5px;
+            border-radius: 80%;
+            box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .menu-btn.open {
+            transform: translateX(calc(var(--sidebar-width) - 80px)) rotate(360deg);
+        }
+
+        /* Hero Section: Animaci�n de Desenfoque al Despliegue */
+        .hero-section {
+            height: 20vh;
+            background-image: url('https://i.postimg.cc/5y5CHdnr/ARAUCO-01-1.png');
+            background-repeat: no-repeat;
+            background-size: 70vh;
+            background-position: center;
+            position: relative;
+            transition: filter 0.5s ease;
+        }
+        .hero-section.blurred {
+            filter: blur(5px);
+        }
+
+        /* Animaci�n de Puntos de Entrada (Solo CSS para los puntos) */
+        .dot-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+        .dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: dot-entry 0.5s forwards;
+        }
+
+        @keyframes dot-entry {
+            0% { opacity: 1; transform: scale(0.1); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+    </style>
+   
+   
+   <!-- Importo Lucide para iconos, que son ideales para enlaces de men� -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    
+</head>
+<body class="text-slate-800">
+
+
+<!-- Sidebar Oculta -->
+    <aside class="sidebar flex flex-col pt-10 text-white" id="sidebar">
+        <h1 class="text-2xl font-bold p-5 text-center border-b border-[#ffffff]">Menú Principal</h1>
+             <h1 class="text-1 text-center border-b border-[#ffffff]"> Reporte Alarmas por áreas</h1>
+        <nav class="flex-1 mt-0">  
+            <!-- ENLACES A�ADIDOS/ACTUALIZADOS -->
+            <a href="https://sites.google.com/view/reporte-forzados-dcs/reporte-alarmas-cr" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>Caldera Recuperadora</span>
+            </a>
+            <a href="https://www.wikipedia.org" target="_blank" class="block flex items-center justify-center p-2">
+                <!-- Icono de Servicios (Gear) -->
+              <span>Wikipedia (Externo)</span>
+            </a>
+            <a href="#content-section" class="block flex items-center justify-center p-2">
+                <!-- Icono de Clientes (Users) -->
+                <span>Ir a Contenido (Interno)</span>
+            </a>
+            <a href="https://developers.google.com/gemini" target="_blank" class="block flex items-center justify-center p-2">
+                <!-- Icono de Blog (Pencil) -->
+                <span>Docs Gemini (Externo)</span>
+            </a>
+            <a href="#" class="block flex items-center justify-center p-2">
+                <!-- Icono de Test (Check) -->
+                <span>Enlace Ficticio</span>
+            </a>
+             <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
+             <h1 class="text-1 text-center border-b border-[#ffffff]">Reporte Alarmas por mayor tiempo Activa</h1>
+
+            </nav>
+        <footer class="p-5 text-sm text-cente opacity-70 border-t border-[#ffffff] mt-5">
+            Unidad de DCS & Accionamiento
+            Generado por ROL
+        </footer>
+    </aside>
+
+    <!-- Bot�n de Hamburguesa -->
+    <div class="menu-btn" id="menuBtn">
+        <svg class="w-6 h-6 text-[#696158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </div>
+
+    <!-- Contenedor de Puntos de Animaci�n -->
+    <div class="dot-container" id="dotContainer"></div>
+
+    <!-- Contenido Principal -->
+    <main class="main-content flex-1">
+        <!-- Hero Section: Desenfoque Din�mico -->
+        <section class="hero-section flex items-end justify-end" id="heroSection">
+            <h1 class="text-2xl font-extrabold text-white text-shadow-lg p-4 bg-black bg-opacity-60 rounded-1g">
+                Sistema de Gestión de Alarmas
+            </h1>
+        </section>
+
+
+
+
+
+
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        <!-- Header Section -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#696158] mb-4">
+                Reporte de Alarmas 061-Tall Oil
+            </h1>
+            <p class="text-lg text-[#696158] max-w-3xl mx-auto">
+                Celulosa Arauco Planta Constitución 
+            </p>
+        </header>
+        <!-- Control de Filtro por Fecha de Reporte -->
+        <div class="bg-white p-4 rounded-xl shadow-md flex flex-col md:flex-row items-start md:items-center space-y-3 md:space-y-0 md:space-x-4 mb-6 border-l-4 border-[#EA7600]">
+             <label for="datesFilter" class="text-[#696158] font-medium whitespace-nowrap">
+                <i class="fa-regular fa-calendar-days mr-2 text-[#EA7600]"></i>
+                Filtrar por Fecha de Reporte:
+              </label>
+             <select id="datesFilter" class="p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 w-full md:w-64 transition duration-150 ease-in-out">
+             <!--<option value="ALL">Mostrar Todas las Fechas</option> -->
+             <option value="all" disabled selected>Reporte Global...</option>
+            <!-- Las opciones se llenarán con JavaScript -->
+             </select>
+        </div>
+          <!-- Fin Control de Filtro -->
+
+          <!--<main class="grid grid-cols-1 lg:grid-cols-3 gap-6">-->
+
+        <!-- Tarjeta de Métrica Principal -->
+        <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg border-l-4 border-[#EA7600]">
+            <h2 class="text-xl font-semibold text-[#696158] mb-4">Tasa de Inundación de Alarmas</h2>
+            <p class="text-5xl font-extrabold text-[#EA7600]" id="current-rate">--</p>
+            <p class="text-sm text-gray-500 mt-2">Alarmas por hora (promedio)</p>
+            <p class="text-xs text-gray-400 mt-4" id="report-date">Datos del Reporte: --</p>
+        </div>
+
+        <header class="text-center mb-12">
+            </p>
+        </header>
+
+        <!-- Panel de Gráfico (Ocupa 2/3 en escritorio) -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border-l-4 border-[#EA7600]">
+            <h2 class="text-xl font-semibold text-[#696158] mb-4">Tendencia de Alarmas </h2>
+            <div class="relative h-96">
+                <canvas id="alarmChart"></canvas>
+            </div>
+            <!-- Elemento para mostrar errores en la interfaz -->
+            <div id="error-message"></div>
+        </div>
+
+        <header class="text-center mb-12">
+            </p>
+        </header>
+
+        <!-- Filtro de Fecha (Nuevo Elemento) -->
+    
+        <section class="mb-12 flex justify-start items-center p-4 bg-white rounded-xl shadow-md border-l-4 border-[#EA7600]">
+            <label for="dateFilter" class="text-base font-semibold text-[#696158] mr-4 flex items-center">
+                <i class="fa-regular fa-calendar-days mr-2 text-[#EA7600]"></i>
+                Filtrar Reporte por Fecha:
+            </label>
+            <select id="dateFilter" class="p-2 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 w-full sm:w-64 cursor-pointer transition duration-150 ease-in-out">
+                <option value="all" disabled selected>Cargando Fechas...</option>
+            </select>
+        </section>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <!-- KPI 1 -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-[#EA7600]">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-semibold text-[#696158] uppercase tracking-wider">Total Eventos (<span id="kpi-date-label">Global</span>)</h3>
+                    <i class="fa-solid fa-bell text-[#EA7600] text-xl"></i>
+                </div>
+                <p class="text-4xl font-bold text-slate-800" id="kpi-total-events">--</p>
+                <p class="text-sm text-slate-500 mt-2 font-medium">
+                    <i class="fa-solid fa-arrow-trend-up"></i> Tasa de Eventos Filtrada
+                </p>
+            </div>
+            <!-- KPI 2 -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-[#EA7600]">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-semibold text-[#696158] uppercase tracking-wider">Top 10 Contribución</h3>
+                    <i class="fa-solid fa-chart-pie text-[#EA7600] text-xl"></i>
+                </div>
+                <p class="text-4xl font-bold text-slate-800" id="kpi-top10-contribution">--</p>
+                <p class="text-sm text-slate-500 mt-2">
+                    De la carga total de alarmas
+                </p>
+            </div>
+            <!-- KPI 3 -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-rose-500 hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Alarmas Pendientes</h3>
+                    <p class="text-4xl font-bold text-slate-800" id="kpi-pending-alarms">--</p>
+                    <i class="fa-solid fa-list-check text-rose-500 text-xl"></i>
+                </div>
+                <p class="text-sm text-slate-500 mt-2">
+                    Requieren revisión de ingeniería
+                </p>
+            </div> 
+        </div>
+
+        <!-- Section 1: Top N Alarms (Pareto) - Usando datos reales y Top 10 Global -->
+        <section class="mb-16 rounded-xl border-l-4 border-[#EA7600]">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-8 border-b border-[#EA7600]">
+                    <h2 class="text-2xl font-bold text-[#696158] flex items-center gap-3">
+                        <span class="bg-slate-100 text-[#EA7600] p-2 rounded-lg text-xl"><i class="fa-solid fa-ranking-star"></i></span>
+                        Top 10 Alarmas Molestas (<span id="pareto-date-label">Global</span>)
+                    </h2>
+                    <p class="mt-4 text-slate-600 leading-relaxed">
+                        Este gráfico muestra las <strong>10 alarmas más frecuentes</strong> de los datos cargados para la fecha seleccionada, identificando los "Malos Actores" principales. Se consideran todas las alarmas y eventos de los 5 días previos al informe.
+                    </p>
+                </div>
+                <div class="p-6 bg-slate-50">
+                    <div class="chart-container">
+                        <canvas id="paretoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Pending Alarms (Table) - REINCORPORADA COLUMNA PLAN DE ACCIÓN (READ ONLY) -->
+        <section class="mb-12 rounded-xl border-l-4 border-[#EA7600]">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-8 border-b border-[#EA7600] bg-gradient-to-r from-[#ffffff] to-[#ffffff] text-[#696158]">
+                    <h2 class="text-2xl font-bold flex items-center gap-3">
+                        <span class="bg-slate-100 text-[#EA7600] p-2 rounded-lg text-xl"><i class="fa-solid fa-clipboard-list"></i></span>
+                        Listado de Alarmas (<span id="table-date-label">Global</span>)
+                    </h2>
+                    <p class="mt-2 text-slate-600">
+                        Alarmas cargadas acorde a reporte seleccionado. Se consideran todas las alarmas y eventos de los 5 días previos al informe.
+                    </p>
+                </div>
+                
+                <!-- Contenedor con scroll vertical -->
+                <div class="p-0 table-container overflow-x-auto ">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-600 sticky top-0 z-10">
+                                <th class="p-6 font-semibold">Tag de Proceso</th>
+                                <th class="p-6 font-semibold">Descripción Alarma</th>
+                                <th class="p-6 font-semibold">Módulo / Área</th>
+                                <th class="p-6 font-semibold text-center">Frecuencia (Eventos)</th>
+                                <th class="p-6 font-semibold">Responsable</th>
+                                <th class="p-6 font-semibold">Plan de Acción</th> <!-- Columna reincorporada -->
+                            </tr>
+                        </thead>
+                        <tbody id="pendingAlarmsBody" class="divide-y divide-slate-200 text-sm">
+                            <!-- Filas dinámicas cargadas por JavaScript -->
+                            <tr>
+                                <td colspan="6" class="p-6 text-center text-slate-500">Cargando datos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Elemento para mostrar errores de Firebase/Datos -->
+        <div id="error-message"></div>
+
+        <!-- Footer -->
+        <footer class="text-center text-slate-400 py-8 border-t border-slate-200 mt-12">
+            <p class="text-sm">Generado por René Olivares L.</p>
+        </footer>
+
+    </main>
+
+    <!-- JavaScript for Data Visualization and Persistence -->
+    <script type="module">
+
+
+    const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menuBtn');
+        const heroSection = document.getElementById('heroSection');
+        const dotContainer = document.getElementById('dotContainer');
+
+        function createDot(x, y) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            dot.style.left = `${x}px`;
+            dot.style.top = `${y}px`;
+            dot.style.animationDelay = `${Math.random() * 0.2}s`;
+            dotContainer.appendChild(dot);
+            
+            // Eliminar el punto despu�s de la animaci�n
+            dot.addEventListener('animationend', () => dot.remove());
+        }
+
+        function toggleSidebar(e) {
+            const isOpen = sidebar.classList.toggle('open');
+            menuBtn.classList.toggle('open');
+            heroSection.classList.toggle('blurred', isOpen);
+
+            if (isOpen) {
+                // Disparar animaci�n de puntos desde el bot�n
+                const rect = menuBtn.getBoundingClientRect();
+                const numDots = 15;
+                for (let i = 0; i < numDots; i++) {
+                    // Distribuci�n alrededor del bot�n
+                    const angle = (i / numDots) * 2 * Math.PI;
+                    const radius = 30; // Radio de dispersi�n inicial
+                    const x = rect.left + rect.width / 2 + Math.cos(angle) * radius;
+                    const y = rect.top + rect.height / 2 + Math.sin(angle) * radius;
+                    createDot(x, y);
+                }
+            }
+        }
+
+        menuBtn.addEventListener('click', toggleSidebar);
+        
+        // Cierro el men� si se hace clic en cualquier enlace (comportamiento est�ndar de navegaci�n)
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                menuBtn.classList.remove('open');
+                heroSection.classList.remove('blurred');
+            });
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Importar módulos de Firebase solo para inicialización (aunque no se use Firestore)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        // --- GLOBAL VARIABLES & CONFIG ---
+        // ID de la hoja de cálculo de Google.
+        const SHEET_ID = '1NONQr5zk_rHj0CWH1FNyf03JTxpGKPLl'; 
+        const GOOGLE_SHEET_URL= `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
+        // ID de la hoja de cálculo.
+        const SHEET_ID_TEST = '1vJesfMvg99xVKFZm-x3Ood1MMvWdiGyK';
+        const GOOGLE_SHEET_URL_TEST = `https://docs.google.com/spreadsheets/d/${SHEET_ID_TEST}/gviz/tq?tqx=out:json&gid=0`;
+        let all_AlarmData = [];
+        let allAlarmData = []; // Datos brutos de Google Sheets
+        let uniqueReportDates = []; // Lista de fechas únicas para el filtro
+        let paretoChartInstance = null; 
+        let currentFilterDate = 'all'; // 'all' (por defecto, todos los datos) o una fecha específica
+        // Almacenamiento global para todos los datos brutos.
+      
+
+        /**
+         * Obtiene y parsea los datos desde la URL de la API de Google Sheets.
+         * @returns {Promise<Array<Object>>} Promesa que resuelve con los datos de las alarmas.
+         */
+        async function fetchAlarmData_test() {
+            try {
+                console.log("Intentando obtener datos de URL:", GOOGLE_SHEET_URL_TEST); 
+
+                const response = await fetch(GOOGLE_SHEET_URL_TEST);
+                if (!response.ok) {
+                    throw new Error(`Error de red al acceder al Google Sheet: ${response.status} ${response.statusText}. ¿Los permisos de la hoja son públicos?`);
+                }
+                
+                const text = await response.text();
+
+                // Extraemos el JSON puro de la respuesta
+                const jsonTextMatch = text.match(/google\.visualization\.Query\.setResponse\((.*)\);/);
+                
+                if (!jsonTextMatch || jsonTextMatch.length < 2) {
+                    throw new Error("Formato de respuesta de Google Sheets no reconocido. Asegúrate de que la hoja de cálculo sea pública y accesible.");
+                }
+
+                const jsonText = jsonTextMatch[1];
+                const data = JSON.parse(jsonText);
+
+                if (!data.table || !data.table.rows) {
+                    throw new Error("La estructura de la tabla de datos está vacía o es incorrecta (data.table.rows es nulo).");
+                }
+
+                // Procesamos las filas, usando los índices originales (0-base)
+                const mappedData = data.table.rows.map((row, index) => {
+                    const cells = row.c;
+                    
+                    // Columna C (Index 2): Fecha Hora
+                    const cellC = cells[2];
+                    // Columna D (Index 3): Cantidad de Alarmas
+                    const cellD = cells[3];
+                    // Columna E (Index 4): Fecha del Reporte (Usado para filtrar)
+                    const cellE = cells[4];
+
+                    let fechaHora = 'Sin Hora';
+                    let cantidadAlarmas = null;
+                    let fechaReporte = 'Sin Fecha';
+                    
+                    // VALIDACIÓN: Columna C (Fecha Hora) - Permite valor formateado (.f) o valor string (.v)
+                    if (cellC && cellC.f) {
+                        fechaHora = String(cellC.f);
+                    } 
+                    else if (cellC && cellC.v) {
+                        fechaHora = String(cellC.v);
+                    }
+                    else {
+                        return null; // Marca para omisión si no hay dato de tiempo
+                    }
+
+                    // VALIDACIÓN: Columna D (Cantidad de Alarmas)
+                    if (cellD && typeof cellD.v === 'number') {
+                        cantidadAlarmas = cellD.v;
+                    } else if (cellD && cellD.f) {
+                        cantidadAlarmas = parseInt(String(cellD.f), 10);
+                        if (isNaN(cantidadAlarmas)) cantidadAlarmas = 0;
+                    } else {
+                        cantidadAlarmas = 0; 
+                    }
+
+                    // VALIDACIÓN: Columna E (Fecha del Reporte) - Usamos el valor formateado
+                    if (cellE && cellE.f) {
+                        fechaReporte = String(cellE.f);
+                    }
+                    
+                    return {
+                        'Fecha Hora': fechaHora,
+                        'Cantidad de Alarmas': cantidadAlarmas,
+                        'Fecha del Reporte': fechaReporte
+                    };
+                }).filter(item => item !== null); // Filtramos todas las filas inválidas
+
+                console.log(`Datos válidos cargados: ${mappedData.length} filas.`);
+                return mappedData;
+
+            } catch (error) {
+                console.error("Error crítico al obtener o parsear datos:", error);
+                throw error; 
+            }
+        }
+
+        /**
+         * Rellena el dropdown de filtro con todas las fechas de reporte únicas.
+         * @param {Array<Object>} data - Todos los datos de las alarmas.
+         */
+        function populateDateFilter(data) {
+            const filterSelect = document.getElementById('datesFilter');
+            // Eliminamos las opciones anteriores (manteniendo 'ALL' si ya existía, aunque lo eliminamos por seguridad)
+            while (filterSelect.options.length > 1) {
+             filterSelect.remove(1);
+            }
+            
+            // Obtenemos las fechas únicas, excluimos 'Sin Fecha', y las ordenamos de la más reciente a la más antigua
+            const uniqueDates = [...new Set(data.map(item => item['Fecha del Reporte']))]
+                .filter(date => date && date !== 'Sin Fecha')
+                .sort((a, b) => new Date(b) - new Date(a));
+
+           uniqueDates.forEach(date => {
+               const option = document.createElement('option');
+              option.value = date;
+              option.textContent = date;
+              filterSelect.appendChild(option);
+            });
+
+            // Añadir el listener al filtro si no ha sido añadido antes
+           if (!filterSelect.hasListener) {
+               filterSelect.addEventListener('change', handleFilterChange);
+               filterSelect.hasListener = true;
+            }
+        }
+
+        /**
+         * Maneja el cambio de filtro, filtra los datos globales y llama a renderDashboard.
+         */
+        function handleFilterChange(event) {
+            const selectedDate = event.target.value;
+            
+            const filteredData = selectedDate === 'ALL'
+                ? all_AlarmData
+                : all_AlarmData.filter(row => row['Fecha del Reporte'] === selectedDate);
+            
+            // Renderiza el dashboard con los datos filtrados
+            renderDashboard(filteredData);
+        }
+
+        /**
+         * Calcula las métricas y renderiza la gráfica con los datos proporcionados (ya filtrados o no).
+         * @param {Array<Object>} dataToRender - Los datos de las alarmas a graficar.
+         */
+        function renderDashboard(dataToRender) {
+            const currentRateElement = document.getElementById('current-rate');
+            const reportDateElement = document.getElementById('report-date');
+            const errorMessageElement = document.getElementById('error-message');
+
+            currentRateElement.textContent = '--';
+            errorMessageElement.style.display = 'none';
+
+            if (dataToRender.length === 0) {
+                currentRateElement.textContent = 'N/A';
+                reportDateElement.textContent = 'No hay datos para esta selección.';
+                errorMessageElement.textContent = 'No se encontraron datos válidos con los filtros actuales.';
+                errorMessageElement.style.display = 'block';
+                // Destruir la gráfica si no hay datos
+                if (window.alarmChartInstance) {
+                    window.alarmChartInstance.destroy();
+                    window.alarmChartInstance = null;
+                }
+                return;
+            }
+
+            // 1. Extraer datos para la gráfica y la métrica
+            const labels = dataToRender.map(row => row['Fecha Hora']);
+            const dataPoints = dataToRender.map(row => row['Cantidad de Alarmas']);
+
+            // 2. Calcular la Tasa de Inundación (promedio)
+            const totalAlarms = dataPoints.reduce((sum, current) => sum + current, 0);
+            const totalPoints = labels.length;
+            const alarmRate = totalPoints > 0 ? (totalAlarms / totalPoints).toFixed(1) : 0; 
+
+            // 3. Actualizar la Tarjeta de Métrica
+            currentRateElement.textContent = alarmRate;
+            
+            // Mostrar la fecha del reporte seleccionada o "Todas"
+            const filterSelect = document.getElementById('datesFilter');
+            const selectedDate = filterSelect.value;
+            reportDateElement.textContent = selectedDate === 'ALL' 
+                ? `Total de puntos: ${totalPoints} (Todas las fechas)`
+                : `Fecha seleccionada: ${selectedDate} (${totalPoints} puntos)`;
+
+            // 4. Renderizar la Gráfica
+            const ctx = document.getElementById('alarmChart').getContext('2d');
+            
+            if (window.alarmChartInstance) {
+                window.alarmChartInstance.destroy();
+            }
+
+            window.alarmChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cantidad de Alarmas',
+                        data: dataPoints,
+                        borderColor: '#EA7600',
+                        backgroundColor: 'rgba(234, 118, 0, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#EA7600',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: `Cantidad de Alarmas en (${dataToRender.length} Horas)`
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Cantidad de Alarmas' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Fecha y Hora' },
+                            // Ocultar etiquetas del eje X si hay demasiados puntos
+                            ticks: {
+                                autoSkip: true,
+                                maxTicksLimit: 20 
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        /**
+         * Inicializa el dashboard: carga datos, los almacena y configura el filtro.
+         */
+        async function initDashboard() {
+            const currentRateElement = document.getElementById('current-rate');
+            const reportDateElement = document.getElementById('report-date');
+            const errorMessageElement = document.getElementById('error-message');
+
+            currentRateElement.textContent = 'Cargando...';
+            reportDateElement.textContent = 'Obteniendo datos...';
+            errorMessageElement.style.display = 'none';
+
+            try {
+                const rawData = await fetchAlarmData_test();
+                
+                if (rawData.length === 0) {
+                    currentRateElement.textContent = '0';
+                    reportDateElement.textContent = 'No se encontraron datos válidos.';
+                    errorMessageElement.textContent = 'No se encontraron filas con datos válidos. Asegúrate de que la hoja sea pública.';
+                    errorMessageElement.style.display = 'block';
+                    return;
+                }
+
+                // 1. Almacenar datos globalmente
+                all_AlarmData = rawData; 
+                
+                // 2. Poblar el filtro y añadir el listener
+                populateDateFilter(rawData);
+
+                // 3. Renderizar el dashboard inicial con TODOS los datos
+                renderDashboard(rawData); 
+
+            } catch (error) {
+                console.error("Error en initDashboard:", error);
+                currentRateElement.textContent = 'ERROR';
+                reportDateElement.textContent = `Error de Carga.`;
+                errorMessageElement.textContent = `Error al cargar datos: ${error.message}. Causa probable: permisos de la hoja o formato de datos inconsistente.`;
+                errorMessageElement.style.display = 'block';
+            }
+        }
+
+
+        // --- UTILITY: Label Wrapping Logic (Mandatory) ---
+
+        function wrapLabel(str, maxLen = 16) {
+            if (str.length <= maxLen) return str;
+            const words = str.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if (currentLine.length + 1 + words[i].length <= maxLen) {
+                    currentLine += ' ' + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // --- GLOBAL CHART CONFIGURATION ---
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b'; // Slate 500
+        Chart.defaults.responsive = true;
+        
+        // Tooltip Callback for Multi-line Labels
+        const tooltipPluginConfig = {
+            tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.9)', 
+                titleFont: { size: 13, weight: 'bold' },
+                bodyFont: { size: 12 },
+                padding: 12,
+                cornerRadius: 8,
+                callbacks: {
+                    title: function(tooltipItems) {
+                        const item = tooltipItems[0];
+                        let label = item.chart.data.labels[item.dataIndex];
+                        if (Array.isArray(label)) {
+                            return label.join(' ');
+                        } else {
+                            return label;
+                        }
+                    }
+                }
+            },
+            legend: {
+                display: false
+            }
+        };
+        
+        /**
+         * Calcula los datos del Top N (Pareto) y lo renderiza.
+         * @param {Array} data - El arreglo de alarmas (ya filtrado por fecha si aplica).
+         */
+        function renderParetoChart(data) {
+            const ctxPareto = document.getElementById('paretoChart').getContext('2d');
+            
+            // 1. Calcular la frecuencia total por Tag+Atributo
+            const tagCounts = data.reduce((acc, row) => {
+                const key = `${row.tagModule} - ${row.alarmAttribute}`;
+                // Solo sumar si eventsCount es un número válido
+                if (typeof row.eventsCount === 'number' && !isNaN(row.eventsCount)) {
+                    acc[key] = (acc[key] || 0) + row.eventsCount;
+                }
+                return acc;
+            }, {});
+
+            // 2. Ordenar y seleccionar el Top 10
+            const sortedTags = Object.entries(tagCounts)
+                .sort(([, a], [, b]) => b - a);
+            
+            const top10Tags = sortedTags.slice(0, 10);
+            
+            // 3. Preparar labels y data para Chart.js
+            const paretoRawLabels = top10Tags.map(([tag]) => tag);
+            const paretoDataValues = top10Tags.map(([, count]) => count);
+            const paretoProcessedLabels = paretoRawLabels.map(l => wrapLabel(l, 25)); 
+            
+            // 4. Calcular el KPI de Contribución Global (del Top 10 general)
+            // Usamos allAlarmData (sin filtrar) para la base de la contribución total
+            //const totalAlarmsGlobal = allAlarmData.reduce((sum, current) => sum + current.eventsCount, 0); 
+            //const top10EventsSum = paretoDataValues.reduce((sum, count) => sum + count, 0);
+            
+            //const contributionPercentage = totalAlarmsGlobal > 0 ? ((top10EventsSum / totalAlarmsGlobal) * 100).toFixed(0) : 0;
+            
+            //document.getElementById('kpi-top10-contribution').textContent = `${contributionPercentage}%`;
+            
+
+
+
+            const totalAlarmsFiltered = data.reduce((sum, current) => sum + current.eventsCount, 0); 
+            const top10EventsSum = paretoDataValues.reduce((sum, count) => sum + count, 0);
+            
+            // Usamos 'totalAlarmsFiltered' como divisor
+            const contributionPercentage = totalAlarmsFiltered > 0 ? ((top10EventsSum / totalAlarmsFiltered) * 100).toFixed(0) : 0;
+            
+            document.getElementById('kpi-top10-contribution').textContent = `${contributionPercentage}%`;
+
+
+
+
+
+
+
+
+            
+            // 5. Destruir instancia anterior si existe
+            if (paretoChartInstance) {
+                paretoChartInstance.destroy();
+            }
+
+            // 6. Crear el nuevo gráfico de Pareto
+            paretoChartInstance = new Chart(ctxPareto, {
+                type: 'bar',
+                data: {
+                    labels: paretoProcessedLabels,
+                    datasets: [{
+                        label: 'Ocurrencias (Total Filtrado)',
+                        data: paretoDataValues,
+                        backgroundColor: ['#EA7600','#EB861F','#EB933F','#EC9F5F','#F0AA7D','#F2B694','#F6C1A0','#F8CCB7','#FAD8C3','#FCE3DA'],
+                        borderRadius: 4,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', 
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { display: true, color: '#f1f5f9' },
+                            title: { display: true, text: 'Cantidad de Activaciones' }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: tooltipPluginConfig
+                }
+            });
+        }
+        
+        // --- FIREBASE SETUP (Simplificado: Solo para auth si es necesario) ---
+        async function initFirebase() {
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                if (Object.keys(firebaseConfig).length === 0) {
+                     console.error("Firebase config is missing.");
+                     return; 
+                }
+
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                
+                // Autenticación con token o anónima 
+                const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (token) {
+                    await signInWithCustomToken(auth, token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                console.log("Firebase initialized.");
+
+            } catch (e) {
+                console.warn("Advertencia: Error durante la inicialización de Firebase:", e);
+            }
+        }
+
+        // --- GOOGLE SHEETS DATA FETCH (READ ONLY) ---
+        async function fetchAlarmData() {
+            const MAX_RETRIES = 5;
+            let currentDelay = 1000;
+
+            // Función para extraer el valor (v) o el valor formateado (f) de la celda como string
+            const safeString = (cell) => (cell && (cell.f || cell.v)) ? String(cell.f || cell.v).trim() : '';
+            // Función para extraer el valor numérico
+            const safeNumber = (cell) => {
+                if (cell && typeof cell.v === 'number') return cell.v;
+                if (cell && cell.f) {
+                    const cleanString = String(cell.f).replace(/[^0-9.-]/g, '');
+                    return parseFloat(cleanString) || 0;
+                }
+                return 0;
+            };
+
+            for (let i = 0; i < MAX_RETRIES; i++) {
+                try {
+                    const response = await fetch(GOOGLE_SHEET_URL);
+                    if (!response.ok) throw new Error(`Error de red: ${response.status}.`);
+                    
+                    const text = await response.text();
+                    const jsonTextMatch = text.match(/google\.visualization\.Query\.setResponse\((.*)\);/);
+                    
+                    if (!jsonTextMatch || jsonTextMatch.length < 2) throw new Error("Formato de respuesta de Google Sheets no reconocido. Asegúrate que la hoja es pública.");
+
+                    const data = JSON.parse(jsonTextMatch[1]);
+
+                    if (!data.table || !data.table.rows) throw new Error("La estructura de la tabla de datos está vacía.");
+
+                    // Columnas esperadas: A(0), B(1), C(2), D(3), E(4), F(5), L(11), M(12)
+                    const mappedData = data.table.rows.map((row) => {
+                        const cells = row.c;
+                        
+                        // Celdas B(1) y D(3) son cruciales
+                        const tagModule = safeString(cells[1]);
+                        const alarmAttribute = safeString(cells[3]);
+                        const reportDate = safeString(cells[11]); // L(11): Fecha del Reporte
+
+                        // Validación mínima de datos
+                        if (!cells[0] || !tagModule || !alarmAttribute || !reportDate) return null;
+
+                        return {
+                            eventsCount: safeNumber(cells[0]),       // A: Cantidad de eventos
+                            tagModule: tagModule,                    // B: Tag módulo (Ej. TIC-405)
+                            moduleDescription: safeString(cells[2]), // C: Descripción del Módulo
+                            alarmAttribute: alarmAttribute,          // D: Alarma Atributo (Ej. High)
+                            alarmDescription: safeString(cells[4]),  // E: Descripción Alarma
+                            responsible: safeString(cells[5]),       // F: Responsable (Ej. Ingeniería, Pendiente, Revisión)
+                            reportDate: reportDate,                  // L: Fecha del Reporte (Filtro)
+                            actionPlanSheet: safeString(cells[12])   // M(12): Plan de Acción (Nueva Columna)
+                        };
+                    // Solo incluimos filas válidas y con eventos > 0
+                    }).filter(item => item !== null && item.eventsCount > 0); 
+                    
+                    // Extraer fechas únicas para el filtro
+                    const datesSet = new Set(mappedData.map(item => item.reportDate));
+                    // Ordenamos las fechas para que la última sea la más reciente
+                    uniqueReportDates = Array.from(datesSet).sort((a, b) => new Date(a) - new Date(b)); 
+                    
+                    return mappedData;
+
+                } catch (error) {
+                    console.warn(`Intento ${i + 1} fallido. Reintentando en ${currentDelay / 1000}s. Error: ${error.message}`);
+                    if (i < MAX_RETRIES - 1) {
+                        await new Promise(resolve => setTimeout(resolve, currentDelay));
+                        currentDelay *= 2; 
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+        }
+        
+
+        // --- DASHBOARD RENDERING LOGIC ---
+        
+        /**
+         * Función central de filtrado y renderizado
+         * @param {string} date - La fecha de reporte a filtrar o 'all' para todos.
+         */
+        function updateDashboard(date) {
+            currentFilterDate = date; // Actualizar el estado global
+            
+            // 1. Filtrar los datos
+            const dataToRender = allAlarmData.filter(alarm => 
+                date === 'all' || alarm.reportDate === date
+            );
+            
+            // 2. Actualizar etiquetas
+            const label = date === 'all' ? 'Global' : date;
+            document.getElementById('kpi-date-label').textContent = label;
+            document.getElementById('pareto-date-label').textContent = label;
+            document.getElementById('table-date-label').textContent = label;
+
+            // 3. Recalcular y renderizar el gráfico de Pareto
+            renderParetoChart(dataToRender);
+
+            // 4. Recalcular y renderizar la tabla de pendientes
+            renderPendingAlarmsTable(dataToRender);
+        }
+
+
+        /**
+         * Renderiza la tabla de alarmas pendientes (Section 3).
+         */
+        function renderPendingAlarmsTable(dataToRender) {
+            const tableBody = document.getElementById('pendingAlarmsBody');
+            tableBody.innerHTML = ''; 
+
+            // --- NUEVA LÍNEA: Ordenar de forma descendente por eventsCount (Frecuencia) ---
+            dataToRender.sort((a, b) => b.eventsCount - a.eventsCount);
+            
+            // --- Actualizar KPI total de eventos (FILTRADO) ---
+            const totalEventsInFilter = dataToRender.reduce((sum, current) => sum + current.eventsCount, 0);
+            document.getElementById('kpi-total-events').textContent = totalEventsInFilter.toLocaleString();
+
+
+            if (dataToRender.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-slate-500 font-medium">
+                            No se encontraron alarmas para el periodo seleccionado.
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('kpi-pending-alarms').textContent = '0';
+                return;
+            }
+
+
+            // --- Actualizar KPI de alarmas pendientes ---
+            // Asumimos que "Pendientes" son aquellas cuyo campo 'Responsible' (Columna F) no indica "Cerrado" o "Resuelto".
+            const pendingCount = dataToRender.filter(alarm => 
+                !alarm.responsible.toLowerCase().includes('cerrado') &&
+                !alarm.responsible.toLowerCase().includes('resuelto')
+            ).length;
+            document.getElementById('kpi-pending-alarms').textContent = pendingCount.toLocaleString();
+
+
+            dataToRender.forEach(alarm => {
+
+                let statusText = alarm.responsible || 'Pendiente';
+                let statusClass = 'status-review'; 
+
+                if (statusText.toLowerCase().includes('ingenieria') || statusText.toLowerCase().includes('revisión') || statusText.toLowerCase().includes('urgente')) {
+                    statusClass = 'status-critical';
+                } else if (statusText.toLowerCase().includes('mantenimiento')) {
+                    statusClass = 'status-inprogress';
+                } else if (statusText.toLowerCase().includes('cerrado') || statusText.toLowerCase().includes('resuelto')) {
+                     statusClass = 'status-inprogress';
+                }
+
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50 transition-colors';
+
+                // Se reincorpora el Plan de Acción (actionPlanSheet) como columna de solo lectura
+                row.innerHTML = `
+                    <td class="p-6 font-mono text-[#EA7600] font-bold">${alarm.tagModule} - ${alarm.alarmAttribute}</td>
+                    <td class="p-6 text-slate-700">${alarm.alarmDescription}</td>
+                    <td class="p-6 text-slate-600">${alarm.moduleDescription}</td>
+                    <td class="p-6 text-center font-bold text-slate-800">${alarm.eventsCount.toLocaleString()}</td>
+                    <td class="p-6"><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td class="p-6 text-slate-500 italic">${alarm.actionPlanSheet || 'N/A'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        /**
+         * Inicializa el dropdown del filtro de fecha
+         */
+        function initializeDateFilter() {
+            const select = document.getElementById('dateFilter');
+            select.innerHTML = ''; // Limpiar opciones anteriores
+            
+            // 1. Opción Global
+            const allOption = document.createElement('option');
+            allOption.value = 'all';
+            allOption.textContent = 'Todo el Histórico (Global)';
+            select.appendChild(allOption);
+            
+            // 2. Opciones de Fechas Únicas
+            uniqueReportDates.forEach(date => {
+                const option = document.createElement('option');
+                option.value = date;
+                option.textContent = `Reporte del: ${date}`;
+                select.appendChild(option);
+            });
+            
+            // 3. Seleccionar la última fecha (más reciente) si existe
+            if (uniqueReportDates.length > 0) {
+                const latestDate = uniqueReportDates[uniqueReportDates.length - 1];
+                select.value = latestDate;
+                currentFilterDate = latestDate;
+            } else {
+                select.value = 'all';
+                currentFilterDate = 'all';
+            }
+            
+            // 4. Configurar el listener de cambio
+            select.addEventListener('change', (e) => {
+                updateDashboard(e.target.value);
+            });
+        }
+
+
+        /**
+         * Inicializa el dashboard dinámico.
+         */
+        async function initDynamicDashboard() {
+            const tableBody = document.getElementById('pendingAlarmsBody');
+            tableBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-indigo-600 font-medium">1. Configurando el entorno...</td></tr>';
+            
+            // 1. Inicializar Firebase (solo por si acaso, pero no esencial para los datos)
+            await initFirebase();
+            tableBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-indigo-600 font-medium">2. Obteniendo datos de Google Sheets...</td></tr>';
+
+            try {
+                // 2. Obtener datos de Google Sheets (lectura)
+                const rawData = await fetchAlarmData();
+                if (rawData.length === 0) {
+                    document.getElementById('error-message').textContent = 'No se encontraron datos válidos en la hoja de cálculo.';
+                    document.getElementById('error-message').style.display = 'block';
+                    return; 
+                }
+
+                // 3. Almacenar datos globalmente y configurar filtro
+                allAlarmData = rawData; 
+                initializeDateFilter(); // Cargar las fechas únicas y establecer la fecha inicial
+
+                // 4. Renderizar la vista inicial con la fecha por defecto
+                tableBody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-indigo-600 font-medium">3. Generando Dashboard...</td></tr>';
+                updateDashboard(currentFilterDate);
+
+            } catch (error) {
+                console.error("Error grave en initDynamicDashboard:", error);
+                document.getElementById('kpi-total-events').textContent = 'ERROR';
+                document.getElementById('error-message').textContent = `Error al cargar datos: ${error.message}. Revisa la URL de Google Sheet y su formato.`;
+                document.getElementById('error-message').style.display = 'block';
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-rose-600 font-bold">
+                            ERROR: No se pudieron cargar los datos de Google Sheets.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Ejecutar al cargar la ventana
+        //window.onload = initDashboard;
+        // Ejecutar al cargar la ventana
+        //window.onload = initDynamicDashboard;
+        window.addEventListener('load', initDashboard);
+        window.addEventListener('load', initDynamicDashboard);
+// Ambas funciones quedan registradas y se ejecutan en orden cuando ocurre el evento 'load'.
+
+
+    </script>
+</body>
+</html>

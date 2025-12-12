@@ -1,0 +1,21 @@
+# Regla de Reescritura Universal
+#
+# Origen: Cualquier cosa que no sea un archivo real (el comodín '/*')
+# Destino: El archivo index.html
+# Código: 200 (OK - Mantener la URL)
+#
+/alarmascr    /alarmascr/alarmascr.html    200
+/alarmascp    /alarmascp/alarmascp.html    200
+/alarmassg    /alarmassg/alarmassg.html    200
+/alarmasca    /alarmasca/alarmasca.html    200
+/alarmasde    /alarmasde/alarmasde.html    200
+/alarmasdi    /alarmasdi/alarmasdi.html    200
+/alarmasef    /alarmasef/alarmasef.html    200
+/alarmasev    /alarmasev/alarmasev.html    200
+/alarmashc    /alarmashc/alarmashc.html    200
+/alarmaslc    /alarmaslc/alarmaslc.html    200
+/alarmasma    /alarmasma/alarmasma.html    200
+/alarmaspa    /alarmaspa/alarmaspa.html    200
+/alarmasto    /alarmasto/alarmasto.html    200
+/alarmastu    /alarmastu/alarmastu.html    200
+/* /index.html    200
