@@ -61,9 +61,14 @@
       "destination": "/alarmastu/alarmastu.html"
     },
     {
+      "source": "/alarmasactivas",
+      "destination": "/alarmasactivas/alarmasactivas.html"
+    },
+    {
       "source": "/:path((?!index\\.html).*)",
       "destination": "/index.html"
     }
   ]
 }
+
 
