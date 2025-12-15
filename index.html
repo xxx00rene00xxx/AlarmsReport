@@ -1,343 +1,448 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Principal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/png" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
-    <link rel="shortcut icon" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
-    <style>
-        :root {
-            --sidebar-width: 280px;
-            --main-color: #696158; /* Naranja */
-        }
-        body { margin: 0; font-family: 'Inter', sans-serif; background-color: #ffffff; }
-        .container { display: flex; }
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Principal</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="icon" type="image/png" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
+        <link rel="shortcut icon" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
+        <style>
+            :root {
+                --sidebar-width: 280px;
+                --main-color: #696158; /* Naranja */
+            }
+            body { margin: 0; font-family: 'Inter', sans-serif; background-color: #ffffff; }
+            .container { display: flex; }
 
-        /* Sidebar Oculta con animación JS */
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            background-color: var(--main-color);
-            transform: translateX(-100%); /* Oculta */
-            transition: transform 0.3s ease;
-            z-index: 50;
-        }
-        .sidebar.open {
-            transform: translateX(0);
-        }
-        
-        /* Botones del menú */
-        /* Añado estilos para los iconos de Lucide */
-        .sidebar a {
-            padding: 7.5px 25px;
-            font-weight: 600;
-            transition: background-color 0.5s;
-            display: flex; /* Para alinear el texto y el icono */
-            align-items: center;
-        }
-        .sidebar a:hover {
-            background-color: #BFB800; /* Naranja más oscuro */
-        }
-        
-        /* Botón de Hamburguesa */
-        .menu-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 100;
-            background: white;
-            padding: 7.5px 7.5px;
-            border-radius: 80%;
-            box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .menu-btn.open {
-            transform: translateX(calc(var(--sidebar-width) - 80px)) rotate(360deg);
-        }
+            /* Sidebar Oculta con animación JS */
+            .sidebar {
+                width: var(--sidebar-width);
+                height: 100vh;
+                position: fixed;
+                background-color: var(--main-color);
+                transform: translateX(-100%); /* Oculta */
+                transition: transform 0.3s ease;
+                z-index: 50;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            /* Botones del menú */
+            /* Añado estilos para los iconos de Lucide */
+            .sidebar a {
+                padding: 7.5px 25px;
+                font-weight: 600;
+                transition: background-color 0.5s;
+                display: flex; /* Para alinear el texto y el icono */
+                align-items: center;
+            }
+            .sidebar a:hover {
+                background-color: #BFB800; /* Naranja más oscuro */
+            }
+            
+            /* Botón de Hamburguesa */
+            .menu-btn {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 100;
+                background: white;
+                padding: 7.5px 7.5px;
+                border-radius: 80%;
+                box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+                cursor: pointer;
+                transition: transform 0.3s;
+            }
+            .menu-btn.open {
+                transform: translateX(calc(var(--sidebar-width) - 80px)) rotate(360deg);
+            }
 
-        /* Hero Section: Animación de Desenfoque al Despliegue */
-        .hero-section {
-            height: 30vh;
-            background-image: url('https://i.postimg.cc/5y5CHdnr/ARAUCO-01-1.png');
-            background-repeat: no-repeat;
-            background-size: 60vh;
-            background-position: center;
-            position: relative;
-            transition: filter 0.5s ease;
-        }
-        .hero-section.blurred {
-            filter: blur(5px);
-        }
+            /* Hero Section: Animación de Desenfoque al Despliegue */
+            .hero-section {
+                height: 30vh;
+                background-image: url('https://i.postimg.cc/5y5CHdnr/ARAUCO-01-1.png');
+                background-repeat: no-repeat;
+                background-size: 60vh;
+                background-position: center;
+                position: relative;
+                transition: filter 0.5s ease;
+            }
+            .hero-section.blurred {
+                filter: blur(5px);
+            }
 
-        /* Animación de Puntos de Entrada (Solo CSS para los puntos) */
-        .dot-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 99;
-        }
-        .dot {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: white;
-            border-radius: 50%;
-            opacity: 0;
-            animation: dot-entry 0.5s forwards;
-        }
+            /* Animación de Puntos de Entrada (Solo CSS para los puntos) */
+            .dot-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 99;
+            }
+            .dot {
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                background-color: white;
+                border-radius: 50%;
+                opacity: 0;
+                animation: dot-entry 0.5s forwards;
+            }
 
-        @keyframes dot-entry {
-            0% { opacity: 1; transform: scale(0.1); }
-            100% { opacity: 0; transform: scale(1.5); }
-        }
+            @keyframes dot-entry {
+                0% { opacity: 1; transform: scale(0.1); }
+                100% { opacity: 0; transform: scale(1.5); }
+            }
 
-        /* Estilos específicos para la sección ISA-18.2 */
-        .isa-section {
-            background-color: #f7f7f7;
-            border-top: 4px solid #BFB800;
-        }
-        .isa-card {
-            background-color: white;
-            padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-    </style>
-    <!-- Importo Lucide para iconos, que son ideales para enlaces de menú -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body class="flex">
-
-<!-- Sidebar Oculta -->
-    <aside class="sidebar flex flex-col pt-10 text-white" id="sidebar">
-        <h1 class="text-2xl font-bold p-5 text-center border-t border-[#ffffff]">Menú Principal</h1>
+            /* Estilos específicos para la sección ISA-18.2 */
+            .isa-section {
+                background-color: #f7f7f7;
+                border-top: 4px solid #BFB800;
+            }
+            .isa-card {
+                background-color: white;
+                padding: 24px;
+                border-radius: 20px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
 
+                /* 1. AGREGAMOS EL BORDE IZQUIERDO */
+                /* Color: Blanco (si el fondo es oscuro) o un color de contraste (si el fondo es claro) */
+                border-left: 4px solid #BFB800; /* Ejemplo: 8px de grosor, estilo sólido, color blanco */
 
-             <a href="https://alarms-report.vercel.app" target="_self" class="text-1.5xl block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>Pantalla Principal</span>
-            </a>
+                /* 2. REDONDEAMOS SOLO LAS ESQUINAS IZQUIERDAS */
+                /* Mantenemos el radio en la izquierda y forzamos 0px en la derecha */
+                 border-top-left-radius: 4px; 
+                 border-bottom-left-radius: 4px;
+                 border-top-right-radius: 0;   /* Anulamos el redondeo general de 8px en la derecha */
+                 border-bottom-right-radius: 0; /* Anulamos el redondeo general de 8px en la derecha */
+            }
+
+        </style>
+        <!-- Importo Lucide para iconos, que son ideales para enlaces de menú -->
+        <script src="https://unpkg.com/lucide@latest"></script>
+    </head>
+    <body class="flex">
+
+    <!-- Sidebar Oculta -->
+        <aside class="sidebar flex flex-col pt-10 text-white" id="sidebar">
+            <h1 class="text-2xl font-bold p-5 text-center border-t border-[#ffffff]">Menú Principal</h1>
 
 
-            <p class="text-1xl text-[#696158]">  ""  </p>
-        
 
-             <h1 class="text-1 text-center border-b border-[#ffffff]"> Reporte Alarmas por áreas</h1>
+                <a href="https://alarms-report.vercel.app" target="_self" class="text-1.5xl block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>Pantalla Principal</span>
+                </a>
 
-        <nav class="flex-1 mt-0">	
-            <!-- ENLACES AÑADIDOS/ACTUALIZADOS -->
-			<a href="https://alarms-report.vercel.app/alarmasdi" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>032-Digestores</span>
-            </a>	
-			<a href="https://alarms-report.vercel.app/alarmaslc" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>033-Lavado y Clasificación</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmasma" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>051-Maquina</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmasto" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>061-Tall Oil</span>
-            </a>		
-			<a href="https://alarms-report.vercel.app/alarmasev" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>063-Evaporadores</span>
-            </a>		
-			<a href="https://alarms-report.vercel.app/alarmassg" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>064-Sistema de Gases</span>
-            </a>			
-			<a href="https://alarms-report.vercel.app/alarmascr" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>064-Caldera Recuperadora</span>
-            </a>	
-			<a href="https://alarms-report.vercel.app/alarmashc" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>065-Horno de Cal</span>
-            </a>			
-			<a href="https://alarms-report.vercel.app/alarmasca" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>066-Caustificación</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmascp" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>073-Caldera de Poder</span>
-            </a>
-			<a href="https://alarms-report.vercel.app/alarmastu" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>074-Gen. y Distribución</span>
-            </a>			
-			<a href="https://alarms-report.vercel.app/alarmaspa" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>082-Planta de Agua</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmasde" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>084-Desmineralizado</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmasef" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>085-Efluentes</span>
-            </a>				
-             <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
-             <h1 class="text-1 text-center border-b border-[#ffffff]">Reporte Alarmas por mayor tiempo Activa</h1>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmasactivas" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>Reporte Planta</span>
-            </a>
-            </nav>
-        <footer class="p-5 text-sm text-cente opacity-70 border-t border-[#ffffff] mt-5">
-            <p class="text-sm">Desarrollado por ROL</p>
-			<p class="text-sm">Unidad DCS & Accionamiento</p>
-            </footer>
-    </aside>
 
-    <!-- Botón de Hamburguesa -->
-    <div class="menu-btn" id="menuBtn">
-        <svg class="w-6 h-6 text-[#696158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-    </div>
+                <p class="text-1xl text-[#696158]">  ""  </p>
+            
 
-    <!-- Contenedor de Puntos de Animación -->
-    <div class="dot-container" id="dotContainer"></div>
+                <h1 class="text-1 text-center border-b border-[#ffffff]"> Reporte Alarmas por áreas</h1>
 
-    <!-- Contenido Principal -->
-    <main class="main-content flex-1">
-        <!-- Hero Section: Desenfoque Dinámico -->
-        <section class="hero-section flex items-end justify-end" id="heroSection">
-            <h1 class="text-5xl font-extrabold text-white text-shadow-lg p-4 bg-black bg-opacity-60 rounded-1g">
-                Sistema de Gestión de Alarmas
-            </h1>
-        </section>
+            <nav class="flex-1 mt-0">	
+                <!-- ENLACES AÑADIDOS/ACTUALIZADOS -->
+                <a href="https://alarms-report.vercel.app/alarmasdi" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>032-Digestores</span>
+                </a>	
+                <a href="https://alarms-report.vercel.app/alarmaslc" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>033-Lavado y Clasificación</span>
+                </a>				
+                <a href="https://alarms-report.vercel.app/alarmasma" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>051-Maquina</span>
+                </a>				
+                <a href="https://alarms-report.vercel.app/alarmasto" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>061-Tall Oil</span>
+                </a>		
+                <a href="https://alarms-report.vercel.app/alarmasev" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>063-Evaporadores</span>
+                </a>		
+                <a href="https://alarms-report.vercel.app/alarmassg" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>064-Sistema de Gases</span>
+                </a>			
+                <a href="https://alarms-report.vercel.app/alarmascr" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>064-Caldera Recuperadora</span>
+                </a>	
+                <a href="https://alarms-report.vercel.app/alarmashc" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>065-Horno de Cal</span>
+                </a>			
+                <a href="https://alarms-report.vercel.app/alarmasca" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>066-Caustificación</span>
+                </a>				
+                <a href="https://alarms-report.vercel.app/alarmascp" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>073-Caldera de Poder</span>
+                </a>
+                <a href="https://alarms-report.vercel.app/alarmastu" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>074-Gen. y Distribución</span>
+                </a>			
+                <a href="https://alarms-report.vercel.app/alarmaspa" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>082-Planta de Agua</span>
+                </a>				
+                <a href="https://alarms-report.vercel.app/alarmasde" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>084-Desmineralizado</span>
+                </a>				
+                <a href="https://alarms-report.vercel.app/alarmasef" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>085-Efluentes</span>
+                </a>				
+                <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
+                <h1 class="text-1 text-center border-b border-[#ffffff]">Reporte Alarmas por mayor tiempo Activa</h1>
+                </a>				
+                <a href="https://alarms-report.vercel.app/alarmasactivas" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>Reporte Planta</span>
+                </a>
+                </nav>
+            <footer class="p-5 text-sm text-cente opacity-70 border-t border-[#ffffff] mt-5">
+                <p class="text-sm">Desarrollado por ROL</p>
+                <p class="text-sm">Unidad DCS & Accionamiento</p>
+                </footer>
+        </aside>
 
-        <!-- Sección de Contenido con Ancla -->
-        <div class="p-8 bg-white" id="content-section">
-            <h2 class="text-3xl font-semibold text-[#696158] mb-6 border-b pb-2">Reporte Alarmas Planta Constitución</h2>
-            <p class="text-[#696158] mb-4">Esta plataforma permite acceder a toda la información relacionada a Alarmas del Sistema de Control Distribuido de Planta.</p>
-            <p class="text-[#696158]">Utiliza la barra lateral a toda la información.</p>
+        <!-- Botón de Hamburguesa -->
+        <div class="menu-btn" id="menuBtn">
+            <svg class="w-6 h-6 text-[#696158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </div>
 
-        <!-- ****************************************************** -->
-        <!-- NUEVA SECCIÓN: Estándar ISA-18.2 para Gestión de Alarmas -->
-        <!-- ****************************************************** -->
-        <div class="p-8 isa-section">
-            <h2 class="text-3xl font-bold text-[#696158] mb-8 text-center">
-                Estándar ISA-18.2: Gestión de Sistemas de Alarmas
-            </h2>
-            
-            <!-- Contenedor Flex para Definición y Ciclo de Vida -->
-            <div class="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
-                
-                <!-- Definición y Características (Columna 1) -->
-                <div class="lg:w-1/2 flex flex-col gap-6">
-                    <div class="isa-card">
-                        <h3 class="text-2xl font-semibold text-[#696158] mb-3 border-b pb-1">Definición de Alarma (ISA-18.2-2016)</h3>
-                        <p class="text-gray-700 italic">
-                            "Medios audibles y/o visibles el cual indica al operador un mal funcionamiento de un equipo, 
-                            una desviación del proceso o una condición anormal que requiere una respuesta oportuna"
-                        </p>
-                    </div>
+        <!-- Contenedor de Puntos de Animación -->
+        <div class="dot-container" id="dotContainer"></div>
 
-                    <div class="isa-card">
-                        <h3 class="text-xl font-semibold text-[#696158] mb-3 border-b pb-1">Características Claves de una Alarma</h3>
-                        <ul class="space-y-3 text-gray-700">
-                            <li>
-                                <p><span class="font-bold text-[#696158]">Anormal:</span> Todos los elementos y/o condiciones que activan una alarma son anormales. Una notificación puede indicar una condición normal (planeada y esperada); esto no es una alarma por definición.</p>
-                            </li>
-                            <li>
-                                <p><span class="font-bold text-[#696158]">Acción (Respuesta):</span> Hay una acción disponible y requerida para el operador asociada con esta notificación. Si el operador puede simplemente silenciar/reconocer el ruido y luego no hacer nada más sin consecuencias, esto no es una alarma.</p>
-                            </li>
-                            <li>
-                                <p><span class="font-bold text-[#696158]">Consecuencia (Implícita):</span> Es probable que ocurra un resultado no deseado si no se toman medidas correctivas o si se toman medidas correctivas inadecuadas; si no existe una consecuencia negativa potencial, no es necesaria ninguna acción; por lo tanto, esto no es una alarma.</p>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+        <!-- Contenido Principal -->
+        <main class="main-content flex-1">
+            <!-- Hero Section: Desenfoque Dinámico -->
+            <section class="hero-section flex items-end justify-end" id="heroSection">
+                <h1 class="text-5xl font-extrabold text-white text-shadow-lg p-4 bg-black bg-opacity-60 rounded-1g">
+                    Sistema de Gestión de Alarmas
+                </h1>
+            </section>
 
-                <!-- Ciclo de Vida del Estándar (Columna 2) -->
-                <div class="lg:w-1/2 isa-card flex flex-col items-center">
-                    <h3 class="text-xl font-semibold text-[#696158] mb-3 border-b w-full text-center">Ciclo de Vida del Estándar ISA-18.2</h3>
-                    <!-- Diagrama simplificado en lista, ya que no podemos usar la imagen -->
-                    <ol class="list-decimal list-inside text-gray-700 space-y-2 mt-4 text-center">
-                             <img src="https://i.postimg.cc/50jgGJBt/Alarmas.png" alt="Descripción de mi imagen">
-                    </ol>
-                    <p class="text-xl text-[#696158]">Ciclo de vida del estándar ISA-18.2</p>
-                </div>
+            <!-- Sección de Contenido con Ancla -->
+            <div class="p-8 bg-white" id="content-section">
+                <h2 class="text-3xl font-semibold text-[#696158] mb-6 border-b pb-2">Reporte Alarmas Planta Constitución</h2>
+                <p class="text-[#696158] mb-4">Esta plataforma permite acceder a toda la información relacionada a Alarmas del Sistema de Control Distribuido de Planta.</p>
+                <p class="text-[#696158]">Utiliza la barra lateral a toda la información.</p>
             </div>
-		 <footer class="text-center text-slate-400 py-8 border-t border-slate-200 mt-12">
-            <p class="text-sm">Desarrollado por ROL</p>
-			<p class="text-sm">Unidad DCS & Accionamiento</p>
-        </footer>
-        </div>
-        <!-- ****************************************************** -->
 
-    </main>
+            <!-- ****************************************************** -->
+            <!-- NUEVA SECCIÓN: Estándar ISA-18.2 para Gestión de Alarmas -->
+            <!-- ****************************************************** -->
+            <div class="p-8 isa-section">
+                <h2 class="text-3xl font-bold text-[#696158] mb-8 text-center">
+                    Estándar ISA-18.2: Gestión de Sistemas de Alarmas
+                </h2>
+                
+                <!-- Contenedor Flex para Definición y Ciclo de Vida -->
+                <div class="flex flex-col lg:flex-row gap-8 max-w-7xl mx-auto">
+                    
+                    <!-- Definición y Características (Columna 1) -->
+                    <div class="lg:w-1/2 flex flex-col gap-6">
+                        <div class="isa-card">
+                            <h3 class="text-2xl font-semibold text-[#696158] mb-3 border-b pb-1">Definición de Alarma (ISA-18.2-2016)</h3>
+                            <p class="text-gray-700 italic">
+                                "Medios audibles y/o visibles el cual indica al operador un mal funcionamiento de un equipo, 
+                                una desviación del proceso o una condición anormal que requiere una respuesta oportuna"
+                            </p>
+                        </div>
 
-    <script>
-        const sidebar = document.getElementById('sidebar');
-        const menuBtn = document.getElementById('menuBtn');
-        const heroSection = document.getElementById('heroSection');
-        const dotContainer = document.getElementById('dotContainer');
+                        <div class="isa-card">
+                            <h3 class="text-xl font-semibold text-[#696158] mb-3 border-b pb-1">Características Claves de una Alarma</h3>
+                            <ul class="space-y-3 text-gray-700">
+                                <li>
+                                    <p><span class="font-bold text-[#696158]">Anormal:</span> Todos los elementos y/o condiciones que activan una alarma son anormales. Una notificación puede indicar una condición normal (planeada y esperada); esto no es una alarma por definición.</p>
+                                </li>
+                                <li>
+                                    <p><span class="font-bold text-[#696158]">Acción (Respuesta):</span> Hay una acción disponible y requerida para el operador asociada con esta notificación. Si el operador puede simplemente silenciar/reconocer el ruido y luego no hacer nada más sin consecuencias, esto no es una alarma.</p>
+                                </li>
+                                <li>
+                                    <p><span class="font-bold text-[#696158]">Consecuencia (Implícita):</span> Es probable que ocurra un resultado no deseado si no se toman medidas correctivas o si se toman medidas correctivas inadecuadas; si no existe una consecuencia negativa potencial, no es necesaria ninguna acción; por lo tanto, esto no es una alarma.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
 
-        function createDot(x, y) {
-            const dot = document.createElement('div');
-            dot.classList.add('dot');
-            dot.style.left = `${x}px`;
-            dot.style.top = `${y}px`;
-            dot.style.animationDelay = `${Math.random() * 0.2}s`;
-            dotContainer.appendChild(dot);
-            
-            // Eliminar el punto después de la animación
-            dot.addEventListener('animationend', () => dot.remove());
-        }
+                    <!-- Ciclo de Vida del Estándar (Columna 2) -->
+                    <div class="lg:w-1/2 isa-card flex flex-col items-center">
+                        <h3 class="text-xl font-semibold text-[#696158] mb-3 border-b w-full text-center">Ciclo de Vida del Estándar ISA-18.2</h3>
+                        <!-- Diagrama simplificado en lista, ya que no podemos usar la imagen -->
+                        <ol class="list-decimal list-inside text-gray-700 space-y-2 mt-4 text-center">
+                                <img src="https://i.postimg.cc/50jgGJBt/Alarmas.png" alt="Descripción de mi imagen">
+                        </ol>
+                        <p class="text-xl text-[#696158]">Ciclo de vida del estándar ISA-18.2</p>
+                    </div>
+                </div>
 
-        function toggleSidebar(e) {
-            const isOpen = sidebar.classList.toggle('open');
-            menuBtn.classList.toggle('open');
-            heroSection.classList.toggle('blurred', isOpen);
+                <!-- ****************************************************** -->
+                <!-- NUEVAS TABLAS DE MÉTRICAS ISA-18.2 -->
+                <!-- ****************************************************** -->
+                <div class="mt-12">
+                    <h2 class="text-2xl font-bold text-[#696158] mb-6 border-b pb-2 text-center">Métricas de alarma recomendadas por ISA-18.2-2016</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
+                        
+                        <!-- Tabla 1: Resumen de Alarmas por Prioridad (Mock Data) -->
+                        <div class="isa-card">
 
-            if (isOpen) {
-                // Disparar animación de puntos desde el botón
-                const rect = menuBtn.getBoundingClientRect();
-                const numDots = 15;
-                for (let i = 0; i < numDots; i++) {
-                    // Distribución alrededor del botón
-                    const angle = (i / numDots) * 2 * Math.PI;
-                    const radius = 30; // Radio de dispersión inicial
-                    const x = rect.left + rect.width / 2 + Math.cos(angle) * radius;
-                    const y = rect.top + rect.height / 2 + Math.sin(angle) * radius;
-                    createDot(x, y);
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 border-l-4 border-[#BFB800] rounded-lg overflow-hidden ">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-3 py-3 text-left text-sm font-bold text-[#696158] tracking-wider">Métrica</th>
+                                            <th class="px-3 py-3 text-right text-sm font-bold text-[#696158] tracking-wider">Valor objetivo</th>
+                                            <th class="px-3 py-3 text-right text-sm font-bold text-[#696158] tracking-wider">Valor objetivo</th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Alarmas anunciadas por tiempo</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] text-right">Muy probable que sea aceptable</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] text-right">máximo manejable</td>
+
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Alarmas anunciadas por hora por consola de operador</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] text-right">aprox. 6 (promedio)</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] text-right">aprox. 12 (promedio)</td>
+
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Alarmas anunciadas cada 10 minutos por consola de operador</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] text-right">aprox. 1 (promedio)</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] text-right">aprox. 2 (promedio)</td>
+
+                                        </tr>
+                                    
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tabla 2: Top 5 Alarmas por Mayor Tiempo Activa (Mock Data) -->
+                        <div class="isa-card">
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 rounded-lg overflow-hidden">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-3 py-3 text-left text-sm font-bold text-[#696158] tracking-wider">Métrica</th>
+                                            <th class="px-3 py-3 text-left text-sm font-bold text-[#696158] tracking-wider hidden sm:table-cell">Valor objetivo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Porcentaje de periodos de 10 minutos que contienen más de 10 alarmas</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] hidden sm:table-cell">< 1</td>
+                                    </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Número máximo de alarmas en un periodo de 10 minutos</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] hidden sm:table-cell">=< 10</td>
+
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Porcentaje de tiempo que el sistema de alarma está en una condición de inundación</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] hidden sm:table-cell">< 1</td>
+        
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Contribución porcentual de las 10 alarmas más frecuentes a la carga de alarmas</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] hidden sm:table-cell">< 1% a 5% máximo con planes de acción para abordar las deficiencias</td>
+
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Cantidad de alarmas fugaces</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] hidden sm:table-cell">Cero, planes de acción para corregir los que ocurran</td>
+
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Alarmas obsoletas</td>
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-[#696158] hidden sm:table-cell">Menos de 5 presentes en cualquier día, con planes de acción para abordar</td>
+
+                                        </tr>
+                                            <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-bold text-[#696158]">Distribución de prioridad anunciada</td>
+                                            <td class="px-3 py-3 text-sm text-[#696158] hidden sm:table-cell">3 prioridades: aproximadamente 80% baja,  15% media, 5% alta <br>4 prioridades: aproximadamente 80% baja, 15% media,  5% alta, < 1% alta alta.<br> Otras prioridades especiales excluidas del cálculo.</td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ****************************************************** -->
+            <footer class="text-center text-slate-400 py-8 border-t border-slate-200 mt-12">
+                <p class="text-sm">Desarrollado por ROL</p>
+                <p class="text-sm">Unidad DCS & Accionamiento</p>
+            </footer>
+            </div>
+            <!-- ****************************************************** -->
+
+        </main>
+
+        <script>
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.getElementById('menuBtn');
+            const heroSection = document.getElementById('heroSection');
+            const dotContainer = document.getElementById('dotContainer');
+
+            function createDot(x, y) {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                dot.style.left = `${x}px`;
+                dot.style.top = `${y}px`;
+                dot.style.animationDelay = `${Math.random() * 0.2}s`;
+                dotContainer.appendChild(dot);
+                
+                // Eliminar el punto después de la animación
+                dot.addEventListener('animationend', () => dot.remove());
+            }
+
+            function toggleSidebar(e) {
+                const isOpen = sidebar.classList.toggle('open');
+                menuBtn.classList.toggle('open');
+                heroSection.classList.toggle('blurred', isOpen);
+
+                if (isOpen) {
+                    // Disparar animación de puntos desde el botón
+                    const rect = menuBtn.getBoundingClientRect();
+                    const numDots = 15;
+                    for (let i = 0; i < numDots; i++) {
+                        // Distribución alrededor del botón
+                        const angle = (i / numDots) * 2 * Math.PI;
+                        const radius = 30; // Radio de dispersión inicial
+                        const x = rect.left + rect.width / 2 + Math.cos(angle) * radius;
+                        const y = rect.top + rect.height / 2 + Math.sin(angle) * radius;
+                        createDot(x, y);
+                    }
                 }
             }
-        }
 
-        menuBtn.addEventListener('click', toggleSidebar);
-        
-        // Cierro el menú si se hace clic en cualquier enlace (comportamiento estándar de navegación)
-        sidebar.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                menuBtn.classList.remove('open');
-                heroSection.classList.remove('blurred');
+            menuBtn.addEventListener('click', toggleSidebar);
+            
+            // Cierro el menú si se hace clic en cualquier enlace (comportamiento estándar de navegación)
+            sidebar.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('open');
+                    menuBtn.classList.remove('open');
+                    heroSection.classList.remove('blurred');
+                });
             });
-        });
-    </script>
-</body>
-</html>
-
-
-
-
-
+        </script>
+    </body>
+    </html>
