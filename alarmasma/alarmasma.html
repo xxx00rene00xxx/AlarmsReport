@@ -571,7 +571,7 @@
             if (!table) return;
             const wb = XLSX.utils.table_to_book(table, { sheet: "Reporte Alarmas" });
             const dateStr = new Date().toISOString().split('T')[0];
-            XLSX.writeFile(wb, `Reporte_Alarmas_052_${dateStr}.xlsx`);
+            XLSX.writeFile(wb, `Reporte_Alarmas_051_${dateStr}.xlsx`);
         };
         /**
          * Obtiene y parsea los datos desde la URL de la API de Google Sheets.
@@ -1272,6 +1272,7 @@
 </body>
 
 </html>
+
 
 
 
