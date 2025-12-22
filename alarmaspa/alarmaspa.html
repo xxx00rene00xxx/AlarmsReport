@@ -8,6 +8,7 @@
     <title>Dashboard de Gestión de Alarmas: Análisis de Frecuencia</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <!-- Font Awesome for Icons (Webfont version, no SVG injection) -->
@@ -428,10 +429,25 @@
                         Alarmas cargadas acorde a reporte seleccionado. Se consideran todas las alarmas y eventos de los 5 días previos al informe.
                     </p>
                 </div>
+                	<p class="mt-2 text-slate-600">
+                   
+                   </p>
                 
+                        <!-- El botón que causaba el error -->
+                <div class="flex justify-end w-full">
+                    <button onclick="exportarExcel()" class="bg-[#EA7600] hover:bg-[#BFB800] text-white px-6 py-2 rounded-lg font-bold transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-file-excel"></i> Descargar Excel
+                    </button>
+                   
+
+                </div>
+                   <p class="mt-2 text-slate-600">
+                   
+                   </p>
+
                 <!-- Contenedor con scroll vertical -->
                 <div class="p-0 table-container overflow-x-auto ">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse" id="tableToExport">
                         <thead>
                             <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-600 sticky top-0 z-10">
                                 <th class="p-6 font-semibold">Tag de Proceso</th>
@@ -548,7 +564,16 @@
         let paretoChartInstance = null; 
         let currentFilterDate = 'all'; // 'all' (por defecto, todos los datos) o una fecha específica
         // Almacenamiento global para todos los datos brutos.
-      
+
+		
+        window.exportarExcel = function() {
+            const table = document.getElementById("tableToExport");
+            if (!table) return;
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Reporte Alarmas" });
+            const dateStr = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `Reporte_Alarmas_082_${dateStr}.xlsx`);
+        };
+
 
         /**
          * Obtiene y parsea los datos desde la URL de la API de Google Sheets.
@@ -1249,6 +1274,7 @@
 </body>
 
 </html>
+
 
 
 
