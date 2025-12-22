@@ -575,7 +575,7 @@
             if (!table) return;
             const wb = XLSX.utils.table_to_book(table, { sheet: "Reporte Alarmas" });
             const dateStr = new Date().toISOString().split('T')[0];
-            XLSX.writeFile(wb, `Reporte_Alarmas_066_${dateStr}.xlsx`);
+            XLSX.writeFile(wb, `Reporte_Alarmas_063_${dateStr}.xlsx`);
         };
 
 
@@ -1279,6 +1279,7 @@
 </body>
 
 </html>
+
 
 
 
