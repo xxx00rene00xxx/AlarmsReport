@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARAUCO|Alarmas Permanentes Activas</title>
     <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <!-- Font Awesome for Icons (Webfont version, no SVG injection) -->
@@ -364,6 +365,28 @@
             Listado Completo (Filtrado y Ordenado)
         </h2>
         
+
+
+                    <p class="mt-2 text-slate-600">
+
+                   </p>
+                        <!-- El botón que causaba el error -->
+                <div class="flex justify-end w-full">
+                    <button onclick="exportarExcel()" class="bg-[#BFB800] hover:bg-[#EA7600] text-white px-6 py-2 rounded-lg font-bold transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-file-excel"></i> Descargar Excel
+                    </button>
+                </div>
+                   <p class="mt-2 text-slate-600">
+                   
+                   </p>
+
+
+
+
+
+
+
+
         <!-- Contenedor de la Cabecera (Fija en el top) -->
         <div class="overflow-x-hidden" id="header-scroll-container">
             <table class="divide-y divide-gray-400" id="header-table">
@@ -443,6 +466,45 @@
         // Variables de estado de filtro
         let selectedReportDate = null; 
         let selectedAreaRoot = null; 
+
+
+    window.exportarExcel = function() {
+    const table = document.getElementById("body-table");
+    if (!table) return;
+
+    // 1. Definir los datos de la primera fila personalizada
+    const filaPersonalizada = [["DÍAS ACTIVAS","MÓDULO","DESCRIPCIÓN", "ÁREA", "ACTIVA DESDE", "RESPONSABLE", "FECHA REPORTE", "PLAN DE ACCIÓN"]];
+
+    // 2. Crear una hoja de trabajo (worksheet) a partir de esa fila
+    const ws = XLSX.utils.aoa_to_sheet(filaPersonalizada);
+
+    // 3. Agregar los datos de la tabla HTML a la misma hoja, empezando en la fila 2 (A2)
+    // El parámetro 'origin: "A2"' o 'origin: -1' evita que se sobrescriba la primera fila
+    XLSX.utils.sheet_add_dom(ws, table, { origin: "A2" });
+
+    // 4. Crear el libro de trabajo (workbook) y añadir la hoja
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Reporte Alarmas Act");
+
+    // 5. Generar el archivo y descargarlo
+    const dateStr = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(wb, `Reporte_Alarmas_Activas_${dateStr}.xlsx`);
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         function createDot(x, y) {
             const dot = document.createElement('div');
@@ -875,13 +937,3 @@
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
