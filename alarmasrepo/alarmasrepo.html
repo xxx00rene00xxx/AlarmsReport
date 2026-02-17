@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte General Planta</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Chart.js DataLabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        :root {
+            --main-color: #696158;
+            --accent-color: #EA7600;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f6f6;
+        }
+
+        .chart-mini-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background-color: var(--main-color);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 50;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .sidebar a {
+            padding: 7.5px 25px;
+            font-weight: 600;
+            transition: background-color 0.5s;
+            display: flex; /* Para alinear el texto y el icono */
+            align-items: center;
+        }
+        .sidebar a:hover {
+            background-color: #BFB800;
+        }
+        
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: white;
+            padding: 7.5px 7.5px;
+            border-radius: 80%;
+            box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .menu-btn.open {
+            transform: translateX(calc(var(--sidebar-width) - 80px)) rotate(360deg);
+        }
+
+                /* Hero Section: Animaci�n de Desenfoque al Despliegue */
+        .hero-section {
+            height: 20vh;
+            background-image: url('https://i.postimg.cc/5y5CHdnr/ARAUCO-01-1.png');
+            background-repeat: no-repeat;
+            background-size: 70vh;
+            background-position: center;
+            position: relative;
+            transition: filter 0.5s ease;
+        }
+        .hero-section.blurred {
+            filter: blur(5px);
+        }
+
+        /* Animaci�n de Puntos de Entrada (Solo CSS para los puntos) */
+        .dot-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+        .dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: dot-entry 0.5s forwards;
+        }
+        .area-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            border-left: 6px solid var(--accent-color);
+            padding: 1.25rem;
+            transition: transform 0.2s ease;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        @media (min-width: 768px) {
+            .area-card {
+                width: calc(50% - 1.5rem);
+            }
+        }
+        
+        @media (min-width: 1280px) {
+            .area-card {
+                width: calc(25% - 1.5rem);
+            }
+        }
+
+        .area-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .grid-matrix {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .chart-title {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+            border-left: 3px solid var(--accent-color);
+            padding-left: 8px;
+            line-height: 1.2;
+        }
+
+        .custom-legend {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 5px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .legend-box {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        /* Estilo para el botón de exportación */
+        .btn-export {
+            background-color: #BFB800; /* Color verde Excel */
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-export:hover {
+            background-color: #8d8800;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        .btn-export:active {
+            transform: translateY(0);
+        }
+        .btn-export.disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+    </style>
+
+   <!-- Importo Lucide para iconos, que son ideales para enlaces de men� -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+
+
+</head>
+<body class="text-slate-800">
+
+<!-- Sidebar Oculta -->
+    <aside class="sidebar flex flex-col pt-10 text-white" id="sidebar">
+        <h1 class="text-2xl font-bold p-5 text-center border-b border-[#ffffff]">Menú Principal</h1>
+
+                <a href="https://alarms-report.vercel.app" target="_self" class="text-1.5xl block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>Pantalla Principal</span>
+                </a>
+                <a href="https://alarms-report.vercel.app/alarmasrepo" target="_self" class="text-1.5xl block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>Reporte General</span>
+                </a>
+
+                <p class="text-1xl text-[#696158]">  ""  </p>
+
+		
+             <h1 class="text-1 text-center border-b border-[#ffffff]"> Reporte Alarmas por áreas</h1>
+
+        <nav class="flex-1 mt-0">  
+            <!-- ENLACES A�ADIDOS/ACTUALIZADOS -->
+			<a href="https://alarms-report.vercel.app/alarmasdi" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>032-Digestores</span>
+            </a>	
+			<a href="https://alarms-report.vercel.app/alarmaslc" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>033-Lavado y Clasificación</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmasma" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>051-Maquina</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmasto" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>061-Tall Oil</span>
+            </a>		
+			<a href="https://alarms-report.vercel.app/alarmasev" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>063-Evaporadores</span>
+            </a>		
+			<a href="https://alarms-report.vercel.app/alarmassg" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>064-Sistema de Gases</span>
+            </a>			
+			<a href="https://alarms-report.vercel.app/alarmascr" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>064-Caldera Recuperadora</span>
+            </a>	
+			<a href="https://alarms-report.vercel.app/alarmashc" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>065-Horno de Cal</span>
+            </a>			
+			<a href="https://alarms-report.vercel.app/alarmasca" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>066-Caustificación</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmascp" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>073-Caldera de Poder</span>
+            </a>
+			<a href="https://alarms-report.vercel.app/alarmastu" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>074-Gen. y Distribución</span>
+            </a>			
+			<a href="https://alarms-report.vercel.app/alarmaspa" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>082-Planta de Agua</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmasde" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>084-Desmineralizado</span>
+            </a>				
+			<a href="https://alarms-report.vercel.app/alarmasef" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>085-Efluentes</span>
+            </a>	
+             <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
+             <h1 class="text-1 text-center border-b border-[#ffffff]">Reporte Alarmas por mayor tiempo Activa</h1>
+			<a href="https://alarms-report.vercel.app/alarmasactivas" target="_self" class="block flex items-center justify-center p-2">
+                <!-- Icono de Casa -->
+                <span>Reporte Planta</span>
+            </a>	
+
+			    <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
+                <h1 class="text-1 text-center border-b border-[#ffffff]">Link Adicionales</h1>
+                </a>				
+                <a href="https://reporte-forzados.vercel.app/" target="_self" class="block flex items-center justify-center p-2">
+                    <!-- Icono de Casa -->
+                    <span>Reporte de Forzados Planta</span>
+                </a>
+            </nav>
+        <footer class="p-5 text-sm text-cente opacity-70 border-t border-[#ffffff] mt-5">
+            <p class="text-sm">Desarrollado por ROL</p>
+			<p class="text-sm">Unidad DCS & Accionamiento</p>
+        </footer>
+    </aside>
+
+    <!-- Bot�n de Hamburguesa -->
+    <div class="menu-btn" id="menuBtn">
+        <svg class="w-6 h-6 text-[#696158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </div>
+
+    <!-- Contenedor de Puntos de Animaci�n -->
+    <div class="dot-container" id="dotContainer"></div>
+
+
+     
+    <main class="p-4 lg:p-6 max-w-[1920px] mx-auto">
+        <!-- Hero Section: Desenfoque Din�mico -->
+        <section class="hero-section flex items-end justify-end" id="heroSection">
+            <h1 class="text-2xl font-extrabold text-white text-shadow-lg p-4 bg-black bg-opacity-60 rounded-1g">
+                Sistema de Gestión de Alarmas
+            </h1>
+        </section>
+
+
+
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pt-12">
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl font-bold text-[#696158]">Reporte General</h1>
+                <p class="text-slate-500">Reporte Evolución de N° de Eventos, Contribución Malos Actores y Tasa de Inundación por Área</p>
+            </div>
+            <div class="flex justify-center md:justify-end">
+                <button id="exportBtn" class="btn-export disabled" title="Espere a que carguen los datos">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>Exportar Reporte General</span>
+                </button>
+            </div>
+        </header>
+
+        <div id="matrix-container" class="grid-matrix">
+            <!-- Áreas dinámicas -->
+        </div>
+
+        <!-- Overlay de carga -->
+        <div id="loading-overlay" class="fixed inset-0 bg-white/95 flex items-center justify-center z-50 transition-opacity duration-500">
+            <div class="text-center px-6">
+                <i class="fa-solid fa-circle-notch fa-spin text-5xl text-[#EA7600] mb-6"></i>
+                <div class="flex flex-col items-center gap-2">
+                    <p class="text-lg font-semibold text-[#696158]" id="loading-main-text">Iniciando Dashboard...</p>
+                    <p class="text-sm text-slate-400 font-medium italic" id="loading-area-name"></p>
+                </div>
+                <div class="w-48 h-1 bg-slate-100 mx-auto mt-6 rounded-full overflow-hidden">
+                    <div id="loading-progress" class="h-full bg-[#EA7600] transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <footer class="text-center text-slate-400 py-8 border-t border-slate-200 mt-12">
+            <p class="text-sm">Desarrollado por ROL</p>
+			<p class="text-sm">Unidad DCS & Accionamiento</p>
+        </footer>
+    </main>
+
+    <script>
+
+const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.getElementById('menuBtn');
+        const heroSection = document.getElementById('heroSection');
+        const dotContainer = document.getElementById('dotContainer');
+
+        function createDot(x, y) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            dot.style.left = `${x}px`;
+            dot.style.top = `${y}px`;
+            dot.style.animationDelay = `${Math.random() * 0.2}s`;
+            dotContainer.appendChild(dot);
+            
+            // Eliminar el punto despu�s de la animaci�n
+            dot.addEventListener('animationend', () => dot.remove());
+        }
+
+        function toggleSidebar(e) {
+            const isOpen = sidebar.classList.toggle('open');
+            menuBtn.classList.toggle('open');
+            heroSection.classList.toggle('blurred', isOpen);
+
+            if (isOpen) {
+                // Disparar animaci�n de puntos desde el bot�n
+                const rect = menuBtn.getBoundingClientRect();
+                const numDots = 15;
+                for (let i = 0; i < numDots; i++) {
+                    // Distribuci�n alrededor del bot�n
+                    const angle = (i / numDots) * 2 * Math.PI;
+                    const radius = 30; // Radio de dispersi�n inicial
+                    const x = rect.left + rect.width / 2 + Math.cos(angle) * radius;
+                    const y = rect.top + rect.height / 2 + Math.sin(angle) * radius;
+                    createDot(x, y);
+                }
+            }
+        }
+
+        menuBtn.addEventListener('click', toggleSidebar);
+        
+        // Cierro el men� si se hace clic en cualquier enlace (comportamiento est�ndar de navegaci�n)
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                menuBtn.classList.remove('open');
+                heroSection.classList.remove('blurred');
+            });
+        });
+
+        menuBtn.addEventListener('click', toggleSidebar);
+
+        // Cierro el men� si se hace clic en cualquier enlace (comportamiento est�ndar de navegaci�n)
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                menuBtn.classList.remove('open');
+                heroSection.classList.remove('blurred');
+            });
+        });
+
+
+        Chart.register(ChartDataLabels);
+        const exportBtn = document.getElementById('exportBtn');
+
+        const areasConfig = [
+            { name: "032 - Digestores", mainId: "1AVaqVrDAWeDGxwfGHDHnlmQO0tbG8-Ac", floodId: "1KUkd-kmB-Vck_7lEQYEM2ckKkGaxLk6U" },
+            { name: "033 - Lavado y Clasificación", mainId: "1XrhLyaHGO-Y813Sv4Oe5AOfMWMrhl_yS", floodId: "1yD-7d5TpZbBsgqvpjrRz24fOf0kyiVEz" },
+            { name: "051 - Máquina", mainId: "1j5-n_FgV9gBakV8wPe2F0Yo1nXa9GT8q", floodId: "1C9bKqofe24d-bK8Hh_WXAAY4msBlcqBc" },
+            { name: "061 - Tall Oil", mainId: "1NONQr5zk_rHj0CWH1FNyf03JTxpGKPLl", floodId: "1vJesfMvg99xVKFZm-x3Ood1MMvWdiGyK" },
+            { name: "063 - Evaporadores", mainId: "1Es8Gt5--qzOK3eYf5pJH20zQiXpNaXrB", floodId: "1KPS9cd3INQOXKsfeXjfpFCrmMn-pa8vA" },
+            { name: "064 - Caldera Recuperadora", mainId: "17bdTu9MClYd-GlKU3Gc7NqGsXRZIJYdt", floodId: "1uUGAYE2MycF6TZuO6mo0vSvrQggyZY1j" },
+            { name: "064 - Sistema de Gases", mainId: "15KezGgu768CNt2xisSQwxkuGwv9VvMdq", floodId: "1TKliXw6VkOR1oriJh7h-shnhJ-Gst4jF" },
+            { name: "065 - Horno de Cal", mainId: "19zmBb4gre0NGjJ8nrpXvGM1zXVrMjt0H", floodId: "1MGKuEEMlJuC1avLKAiE4JexPZeXCv4hO" },
+            { name: "066 - Caustificación", mainId: "17bdTu9MClYd-GlKU3Gc7NqGsXRZIJYdt", floodId: "19h0f5YVk001eJeAxZmd4r6ThXRkyJRb_" },
+            { name: "073 - Caldera de Poder", mainId: "1J8CWv7nj78FlZyX8tz0TF_MT_tg5Wg6s", floodId: "1Iz8y32OZkdM-01b4aJxWmwDHB1TK5CVj" },
+            { name: "074 - Generación y Distribución", mainId: "1jy--igtU3EX06Vf4Mp9y3IFDkfyYN-hT", floodId: "1573pftXd7HTlBo-HBk_dOeqUc-qk3amL" },
+            { name: "082 - Planta de Agua", mainId: "1AYQ1xCTCYUjdtMvAJGe4psxA7PDRAdBN", floodId: "1UkbRQjbdib2t_r7aHSKU8hVfzeHQaWiq" },
+            { name: "084 - Desmineralizado", mainId: "1EZbQexgKF95vIRmwqbVx3Inlk_V-AaS2", floodId: "1-DTvD58W4SS_oFfoWkOAl8AwkqcWHRXN" },
+            { name: "085 - Efluentes", mainId: "1zeMUj10Mr_on-T7of7NGMlwJosUNY-gX", floodId: "1FQLR99Ej2vEShwDEan6hGcEeQM6s0aj_" }
+        ];
+
+        // Almacén global de datos para exportar
+        const globalDataStore = [];
+
+        const parseValue = (cell) => {
+            if (!cell) return 0;
+            if (typeof cell.v === 'number') return cell.v;
+            const str = String(cell.f || cell.v || '0');
+            return parseFloat(str.replace(/[^0-9.-]/g, '')) || 0;
+        };
+
+        const parseString = (cell) => (cell && (cell.f || cell.v)) ? String(cell.f || cell.v).trim() : '';
+
+        async function fetchSheetRows(sheetId) {
+            const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=0`;
+            const res = await fetch(url);
+            const text = await res.text();
+            const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\((.*)\);/)[1]);
+            return json.table.rows;
+        }
+
+        function createAreaCard(area, index) {
+            const container = document.getElementById('matrix-container');
+            const card = document.createElement('div');
+            card.className = 'area-card';
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="font-bold text-[#696158] leading-tight text-xs lg:text-sm uppercase">${area.name}</h3>
+                    <i class="fa-solid fa-industry text-slate-100 text-lg"></i>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="chart-title">Total de Eventos y Contribución Malos Actores (%)</h4>
+                        <div class="custom-legend">
+                            <div class="legend-item"><div class="legend-box bg-[#EA7600]"></div><span>Eventos</span></div>
+                            <div class="legend-item"><div class="legend-box bg-[#696158]"></div><span>Contribución Malos Actores</span></div>
+                        </div>
+                        <div class="chart-mini-container">
+                            <canvas id="mixedChart-${index}"></canvas>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100">
+                        <h4 class="chart-title">Tasa de Inundación de Alarmas (Promedio hr.)</h4>
+                        <div class="chart-mini-container">
+                            <canvas id="floodChart-${index}"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        async function processArea(area, index) {
+            try {
+                const loadingArea = document.getElementById('loading-area-name');
+                const loadingMain = document.getElementById('loading-main-text');
+                const loadingProgress = document.getElementById('loading-progress');
+                
+                loadingMain.innerText = `Cargando Área ${index + 1} de ${areasConfig.length}`;
+                loadingArea.innerText = `Procesando: ${area.name}`;
+                loadingProgress.style.width = `${((index + 1) / areasConfig.length) * 100}%`;
+
+                const [rowsMain, rowsFlood] = await Promise.all([
+                    fetchSheetRows(area.mainId),
+                    fetchSheetRows(area.floodId)
+                ]);
+
+                const history = {};
+                rowsMain.forEach(row => {
+                    const c = row.c;
+                    const date = parseString(c[11]);
+                    const count = parseValue(c[0]);
+                    const tag = parseString(c[1]);
+                    const attr = parseString(c[3]);
+
+                    if (!date || count === 0) return;
+                    if (!history[date]) history[date] = { total: 0, tagCounts: {} };
+                    
+                    history[date].total += count;
+                    const key = `${tag} - ${attr}`;
+                    history[date].tagCounts[key] = (history[date].tagCounts[key] || 0) + count;
+                });
+
+                const sortedDates = Object.keys(history).sort((a, b) => {
+                    const pA = a.split('-').map(Number);
+                    const pB = b.split('-').map(Number);
+                    return new Date(pA[2], pA[1]-1, pA[0]) - new Date(pB[2], pB[1]-1, pB[0]);
+                });
+
+                const last6 = sortedDates.slice(-6);
+                const labels = [], totals = [], percents = [];
+
+                last6.forEach(date => {
+                    labels.push(date);
+                    const data = history[date];
+                    totals.push(data.total);
+                    const sortedTags = Object.values(data.tagCounts).sort((a, b) => b - a);
+                    const top10Sum = sortedTags.slice(0, 10).reduce((a, b) => a + b, 0);
+                    percents.push(data.total > 0 ? Math.round((top10Sum / data.total) * 100) : 0);
+                });
+
+                const floodMap = {};
+                rowsFlood.forEach(row => {
+                    const c = row.c;
+                    const val = parseValue(c[3]);
+                    const date = parseString(c[4]);
+                    if (!date) return;
+                    if (!floodMap[date]) floodMap[date] = [];
+                    floodMap[date].push(val);
+                });
+
+                const floodRates = last6.map(d => {
+                    const vals = floodMap[d] || [];
+                    const avg = vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+                    return parseFloat(avg.toFixed(1));
+                });
+
+                // Guardar para exportación
+                last6.forEach((date, i) => {
+                    globalDataStore.push({
+                        Area: area.name,
+                        Fecha: date,
+                        Total_Eventos: totals[i],
+                        Contribucion_Malos_Actores_Perc: percents[i],
+                        Tasa_Inundacion_Prom_Hr: floodRates[i]
+                    });
+                });
+
+                renderCharts(index, labels, totals, percents, floodRates);
+
+            } catch (e) {
+                console.error(`Error en área ${area.name}:`, e);
+            }
+        }
+
+        function renderCharts(idx, labels, totals, percents, flood) {
+            const maxEvents = Math.max(...totals, 10);
+            const y1Limit = maxEvents * 1.15;
+            const maxFlood = Math.max(...flood, 1);
+            const yFloodLimit = maxFlood * 1.15;
+
+            new Chart(document.getElementById(`mixedChart-${idx}`), {
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { 
+                            type: 'bar', 
+                            label: 'Eventos', 
+                            data: totals, 
+                            backgroundColor: '#EA7600', 
+                            yAxisID: 'y', 
+                            order: 2,
+                            datalabels: { display: false }
+                        },
+                        { 
+                            type: 'line', 
+                            label: 'Contribución %', 
+                            data: percents, 
+                            borderColor: '#696158', 
+                            backgroundColor: '#696158', 
+                            borderWidth: 2, 
+                            pointRadius: 4, 
+                            pointBackgroundColor: '#696158',
+                            yAxisID: 'y1', 
+                            order: 1,
+                            datalabels: { display: false }
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { enabled: true },
+                        datalabels: { display: false }
+                    },
+                    scales: {
+                        x: { ticks: { font: { size: 8 }, maxRotation: 45 } },
+                        y: { 
+                            suggestedMax: y1Limit,
+                            title: { display: true, text: 'N° Eventos Totales', font: { size: 7, weight: 'bold' }, color: '#696158' },
+                            ticks: { font: { size: 8 } },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        y1: { 
+                            position: 'right', min: 0, max: 105, 
+                            title: { display: true, text: 'Contribución Malos Actores (%)', font: { size: 7, weight: 'bold' }, color: '#696158' },
+                            ticks: { font: { size: 8 }, callback: v => v + '%' }, 
+                            grid: { drawOnChartArea: false } 
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById(`floodChart-${idx}`), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{ 
+                        label: 'Alm/Hr', data: flood, 
+                        borderColor: '#EA7600', backgroundColor: 'rgba(234, 118, 0, 0.05)', 
+                        fill: true, tension: 0.3, pointRadius: 4,
+                        datalabels: { display: false }
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, datalabels: { display: false } },
+                    scales: {
+                        x: { ticks: { font: { size: 8 } } },
+                        y: { 
+                            beginAtZero: true, suggestedMax: yFloodLimit,
+                            title: { display: true, text: 'Eje Y Promedio Alarmas/hr', font: { size: 7, weight: 'bold' }, color: '#696158' },
+                            ticks: { font: { size: 8 } } 
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para exportar a Excel
+        function exportToExcel() {
+            if (globalDataStore.length === 0) return;
+
+            const header = ["Área", "Fecha", "Total Eventos", "% Contribución Malos Actores", "Tasa Inundación (Prom/Hr)"];
+            let csvContent = "\ufeff" + header.join(";") + "\n";
+            
+            globalDataStore.forEach(item => {
+                const row = [
+                    item.Area,
+                    item.Fecha,
+                    item.Total_Eventos,
+                    item.Contribucion_Malos_Actores_Perc + "%",
+                    item.Tasa_Inundacion_Prom_Hr.toString().replace('.', ',')
+                ];
+                csvContent += row.join(";") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Resumen_KPI_Historico_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function init() {
+            for (let i = 0; i < areasConfig.length; i++) {
+                createAreaCard(areasConfig[i], i);
+                await processArea(areasConfig[i], i);
+            }
+            
+            // Activar botón de exportar
+            exportBtn.classList.remove('disabled');
+            exportBtn.title = "Descargar resumen de datos";
+            exportBtn.addEventListener('click', exportToExcel);
+
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.remove(), 500);
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
