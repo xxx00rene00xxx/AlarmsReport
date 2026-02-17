@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/alarmasrepo",
+      "destination": "/alarmasrepo/alarmasrepo.html"
+    },
+    {
       "source": "/alarmascr",
       "destination": "/alarmascr/alarmascr.html"
     },
@@ -70,5 +74,6 @@
     }
   ]
 }
+
 
 
