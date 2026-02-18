@@ -51,7 +51,7 @@
             padding: 7.5px 25px;
             font-weight: 600;
             transition: background-color 0.5s;
-            display: flex; /* Para alinear el texto y el icono */
+            display: flex;
             align-items: center;
         }
         .sidebar a:hover {
@@ -74,7 +74,6 @@
             transform: translateX(calc(var(--sidebar-width) - 80px)) rotate(360deg);
         }
 
-                /* Hero Section: Animaci�n de Desenfoque al Despliegue */
         .hero-section {
             height: 20vh;
             background-image: url('https://i.postimg.cc/5y5CHdnr/ARAUCO-01-1.png');
@@ -88,7 +87,6 @@
             filter: blur(5px);
         }
 
-        /* Animaci�n de Puntos de Entrada (Solo CSS para los puntos) */
         .dot-container {
             position: fixed;
             top: 0;
@@ -152,6 +150,30 @@
             line-height: 1.2;
         }
 
+        /* Nuevo estilo para el badge de Planes de Acción */
+        .action-plan-summary {
+            background-color: #fef3e7;
+            border: 1px solid #fee2c5;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .action-plan-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #696158;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        .action-plan-value {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--accent-color);
+        }
+
         .custom-legend {
             display: flex;
             gap: 10px;
@@ -172,9 +194,8 @@
             border-radius: 2px;
         }
 
-        /* Estilo para el botón de exportación */
         .btn-export {
-            background-color: #BFB800; /* Color verde Excel */
+            background-color: #BFB800;
             color: white;
             padding: 8px 16px;
             border-radius: 6px;
@@ -202,135 +223,65 @@
         }
     </style>
 
-   <!-- Importo Lucide para iconos, que son ideales para enlaces de men� -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
-
-
 </head>
 <body class="text-slate-800">
 
-<!-- Sidebar Oculta -->
     <aside class="sidebar flex flex-col pt-10 text-white" id="sidebar">
         <h1 class="text-2xl font-bold p-5 text-center border-b border-[#ffffff]">Menú Principal</h1>
-
-                <a href="https://alarms-report.vercel.app" target="_self" class="text-1.5xl block flex items-center justify-center p-2">
-                    <!-- Icono de Casa -->
-                    <span>Pantalla Principal</span>
-                </a>
-                <a href="https://alarms-report.vercel.app/alarmasrepo" target="_self" class="text-1.5xl block flex items-center justify-center p-2">
-                    <!-- Icono de Casa -->
-                    <span>Reporte General</span>
-                </a>
-
-                <p class="text-1xl text-[#696158]">  ""  </p>
-
-		
-             <h1 class="text-1 text-center border-b border-[#ffffff]"> Reporte Alarmas por áreas</h1>
-
+        <a href="https://alarms-report.vercel.app" target="_self" class="text-1.5xl block flex items-center justify-center p-2">
+            <span>Pantalla Principal</span>
+        </a>
+        <a href="https://alarms-report.vercel.app/alarmasrepo" target="_self" class="text-1.5xl block flex items-center justify-center p-2">
+            <span>Reporte General</span>
+        </a>
+        <p class="text-1xl text-[#696158]">  ""  </p>
+        <h1 class="text-1 text-center border-b border-[#ffffff]"> Reporte Alarmas por áreas</h1>
         <nav class="flex-1 mt-0">  
-            <!-- ENLACES A�ADIDOS/ACTUALIZADOS -->
-			<a href="https://alarms-report.vercel.app/alarmasdi" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>032-Digestores</span>
-            </a>	
-			<a href="https://alarms-report.vercel.app/alarmaslc" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>033-Lavado y Clasificación</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmasma" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>051-Maquina</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmasto" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>061-Tall Oil</span>
-            </a>		
-			<a href="https://alarms-report.vercel.app/alarmasev" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>063-Evaporadores</span>
-            </a>		
-			<a href="https://alarms-report.vercel.app/alarmassg" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>064-Sistema de Gases</span>
-            </a>			
-			<a href="https://alarms-report.vercel.app/alarmascr" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>064-Caldera Recuperadora</span>
-            </a>	
-			<a href="https://alarms-report.vercel.app/alarmashc" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>065-Horno de Cal</span>
-            </a>			
-			<a href="https://alarms-report.vercel.app/alarmasca" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>066-Caustificación</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmascp" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>073-Caldera de Poder</span>
-            </a>
-			<a href="https://alarms-report.vercel.app/alarmastu" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>074-Gen. y Distribución</span>
-            </a>			
-			<a href="https://alarms-report.vercel.app/alarmaspa" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>082-Planta de Agua</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmasde" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>084-Desmineralizado</span>
-            </a>				
-			<a href="https://alarms-report.vercel.app/alarmasef" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>085-Efluentes</span>
-            </a>	
-             <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
-             <h1 class="text-1 text-center border-b border-[#ffffff]">Reporte Alarmas por mayor tiempo Activa</h1>
-			<a href="https://alarms-report.vercel.app/alarmasactivas" target="_self" class="block flex items-center justify-center p-2">
-                <!-- Icono de Casa -->
-                <span>Reporte Planta</span>
-            </a>	
-
-			    <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
-                <h1 class="text-1 text-center border-b border-[#ffffff]">Link Adicionales</h1>
-                </a>				
-                <a href="https://reporte-forzados.vercel.app/" target="_self" class="block flex items-center justify-center p-2">
-                    <!-- Icono de Casa -->
-                    <span>Reporte de Forzados Planta</span>
-                </a>
-            </nav>
+            <a href="https://alarms-report.vercel.app/alarmasdi" target="_self" class="block flex items-center justify-center p-2"><span>032-Digestores</span></a>	
+            <a href="https://alarms-report.vercel.app/alarmaslc" target="_self" class="block flex items-center justify-center p-2"><span>033-Lavado y Clasificación</span></a>				
+            <a href="https://alarms-report.vercel.app/alarmasma" target="_self" class="block flex items-center justify-center p-2"><span>051-Maquina</span></a>				
+            <a href="https://alarms-report.vercel.app/alarmasto" target="_self" class="block flex items-center justify-center p-2"><span>061-Tall Oil</span></a>		
+            <a href="https://alarms-report.vercel.app/alarmasev" target="_self" class="block flex items-center justify-center p-2"><span>063-Evaporadores</span></a>		
+            <a href="https://alarms-report.vercel.app/alarmassg" target="_self" class="block flex items-center justify-center p-2"><span>064-Sistema de Gases</span></a>			
+            <a href="https://alarms-report.vercel.app/alarmascr" target="_self" class="block flex items-center justify-center p-2"><span>064-Caldera Recuperadora</span></a>	
+            <a href="https://alarms-report.vercel.app/alarmashc" target="_self" class="block flex items-center justify-center p-2"><span>065-Horno de Cal</span></a>			
+            <a href="https://alarms-report.vercel.app/alarmasca" target="_self" class="block flex items-center justify-center p-2"><span>066-Caustificación</span></a>				
+            <a href="https://alarms-report.vercel.app/alarmascp" target="_self" class="block flex items-center justify-center p-2"><span>073-Caldera de Poder</span></a>
+            <a href="https://alarms-report.vercel.app/alarmastu" target="_self" class="block flex items-center justify-center p-2"><span>074-Gen. y Distribución</span></a>			
+            <a href="https://alarms-report.vercel.app/alarmaspa" target="_self" class="block flex items-center justify-center p-2"><span>082-Planta de Agua</span></a>				
+            <a href="https://alarms-report.vercel.app/alarmasde" target="_self" class="block flex items-center justify-center p-2"><span>084-Desmineralizado</span></a>				
+            <a href="https://alarms-report.vercel.app/alarmasef" target="_self" class="block flex items-center justify-center p-2"><span>085-Efluentes</span></a>	
+            <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
+            <h1 class="text-1 text-center border-b border-[#ffffff]">Reporte Alarmas por mayor tiempo Activa</h1>
+            <a href="https://alarms-report.vercel.app/alarmasactivas" target="_self" class="block flex items-center justify-center p-2"><span>Reporte Planta</span></a>	
+            <h1 class="text-1 text-center border-b border-[#ffffff]"> </h1>
+            <h1 class="text-1 text-center border-b border-[#ffffff]">Link Adicionales</h1>
+            <a href="https://reporte-forzados.vercel.app/" target="_self" class="block flex items-center justify-center p-2"><span>Reporte de Forzados Planta</span></a>
+        </nav>
         <footer class="p-5 text-sm text-cente opacity-70 border-t border-[#ffffff] mt-5">
             <p class="text-sm">Desarrollado por ROL</p>
-			<p class="text-sm">Unidad DCS & Accionamiento</p>
+            <p class="text-sm">Unidad DCS & Accionamiento</p>
         </footer>
     </aside>
 
-    <!-- Bot�n de Hamburguesa -->
     <div class="menu-btn" id="menuBtn">
         <svg class="w-6 h-6 text-[#696158]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
     </div>
 
-    <!-- Contenedor de Puntos de Animaci�n -->
     <div class="dot-container" id="dotContainer"></div>
 
-
-     
     <main class="p-4 lg:p-6 max-w-[1920px] mx-auto">
-        <!-- Hero Section: Desenfoque Din�mico -->
         <section class="hero-section flex items-end justify-end" id="heroSection">
             <h1 class="text-2xl font-extrabold text-white text-shadow-lg p-4 bg-black bg-opacity-60 rounded-1g">
                 Sistema de Gestión de Alarmas
             </h1>
         </section>
 
-
-
         <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pt-12">
             <div class="text-center md:text-left">
                 <h1 class="text-3xl font-bold text-[#696158]">Reporte General</h1>
-                <p class="text-slate-500">Reporte Evolución de N° de Eventos, Contribución Malos Actores y Tasa de Inundación por Área</p>
+                <p class="text-slate-500">Reporte Evolución de N° de Eventos, Contribución Malos Actores, Tasa de Inundación y Planes de Acción</p>
             </div>
             <div class="flex justify-center md:justify-end">
                 <button id="exportBtn" class="btn-export disabled" title="Espere a que carguen los datos">
@@ -340,11 +291,8 @@
             </div>
         </header>
 
-        <div id="matrix-container" class="grid-matrix">
-            <!-- Áreas dinámicas -->
-        </div>
+        <div id="matrix-container" class="grid-matrix"></div>
 
-        <!-- Overlay de carga -->
         <div id="loading-overlay" class="fixed inset-0 bg-white/95 flex items-center justify-center z-50 transition-opacity duration-500">
             <div class="text-center px-6">
                 <i class="fa-solid fa-circle-notch fa-spin text-5xl text-[#EA7600] mb-6"></i>
@@ -357,16 +305,15 @@
                 </div>
             </div>
         </div>
-        <!-- Footer -->
+
         <footer class="text-center text-slate-400 py-8 border-t border-slate-200 mt-12">
             <p class="text-sm">Desarrollado por ROL</p>
-			<p class="text-sm">Unidad DCS & Accionamiento</p>
+            <p class="text-sm">Unidad DCS & Accionamiento</p>
         </footer>
     </main>
 
     <script>
-
-const sidebar = document.getElementById('sidebar');
+        const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menuBtn');
         const heroSection = document.getElementById('heroSection');
         const dotContainer = document.getElementById('dotContainer');
@@ -378,8 +325,6 @@ const sidebar = document.getElementById('sidebar');
             dot.style.top = `${y}px`;
             dot.style.animationDelay = `${Math.random() * 0.2}s`;
             dotContainer.appendChild(dot);
-            
-            // Eliminar el punto despu�s de la animaci�n
             dot.addEventListener('animationend', () => dot.remove());
         }
 
@@ -387,15 +332,12 @@ const sidebar = document.getElementById('sidebar');
             const isOpen = sidebar.classList.toggle('open');
             menuBtn.classList.toggle('open');
             heroSection.classList.toggle('blurred', isOpen);
-
             if (isOpen) {
-                // Disparar animaci�n de puntos desde el bot�n
                 const rect = menuBtn.getBoundingClientRect();
                 const numDots = 15;
                 for (let i = 0; i < numDots; i++) {
-                    // Distribuci�n alrededor del bot�n
                     const angle = (i / numDots) * 2 * Math.PI;
-                    const radius = 30; // Radio de dispersi�n inicial
+                    const radius = 30;
                     const x = rect.left + rect.width / 2 + Math.cos(angle) * radius;
                     const y = rect.top + rect.height / 2 + Math.sin(angle) * radius;
                     createDot(x, y);
@@ -404,8 +346,6 @@ const sidebar = document.getElementById('sidebar');
         }
 
         menuBtn.addEventListener('click', toggleSidebar);
-        
-        // Cierro el men� si se hace clic en cualquier enlace (comportamiento est�ndar de navegaci�n)
         sidebar.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 sidebar.classList.remove('open');
@@ -413,18 +353,6 @@ const sidebar = document.getElementById('sidebar');
                 heroSection.classList.remove('blurred');
             });
         });
-
-        menuBtn.addEventListener('click', toggleSidebar);
-
-        // Cierro el men� si se hace clic en cualquier enlace (comportamiento est�ndar de navegaci�n)
-        sidebar.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                menuBtn.classList.remove('open');
-                heroSection.classList.remove('blurred');
-            });
-        });
-
 
         Chart.register(ChartDataLabels);
         const exportBtn = document.getElementById('exportBtn');
@@ -446,7 +374,6 @@ const sidebar = document.getElementById('sidebar');
             { name: "085 - Efluentes", mainId: "1zeMUj10Mr_on-T7of7NGMlwJosUNY-gX", floodId: "1FQLR99Ej2vEShwDEan6hGcEeQM6s0aj_" }
         ];
 
-        // Almacén global de datos para exportar
         const globalDataStore = [];
 
         const parseValue = (cell) => {
@@ -471,10 +398,17 @@ const sidebar = document.getElementById('sidebar');
             const card = document.createElement('div');
             card.className = 'area-card';
             card.innerHTML = `
-                <div class="flex justify-between items-start mb-4">
+                <div class="flex justify-between items-start mb-3">
                     <h3 class="font-bold text-[#696158] leading-tight text-xs lg:text-sm uppercase">${area.name}</h3>
                     <i class="fa-solid fa-industry text-slate-100 text-lg"></i>
                 </div>
+
+                <!-- KPI: N° Planes de Acción (Últimos 2 informes) -->
+                <div class="action-plan-summary">
+                    <span class="action-plan-label">Acciones correctivas (últimos 2 reportes):</span>
+                    <span id="action-plan-count-${index}" class="action-plan-value">...</span>
+                </div>
+
                 <div class="space-y-6">
                     <div>
                         <h4 class="chart-title">Total de Eventos y Contribución Malos Actores (%)</h4>
@@ -515,17 +449,23 @@ const sidebar = document.getElementById('sidebar');
                 const history = {};
                 rowsMain.forEach(row => {
                     const c = row.c;
-                    const date = parseString(c[11]);
-                    const count = parseValue(c[0]);
-                    const tag = parseString(c[1]);
-                    const attr = parseString(c[3]);
+                    const date = parseString(c[11]); // Columna L
+                    const count = parseValue(c[0]);  // Columna A
+                    const tag = parseString(c[1]);   // Columna B
+                    const attr = parseString(c[3]);  // Columna D
+                    const planAccion = parseString(c[12]); // Columna M (Índice 12)
 
                     if (!date || count === 0) return;
-                    if (!history[date]) history[date] = { total: 0, tagCounts: {} };
+                    if (!history[date]) history[date] = { total: 0, tagCounts: {}, actionPlansCount: 0 };
                     
                     history[date].total += count;
                     const key = `${tag} - ${attr}`;
                     history[date].tagCounts[key] = (history[date].tagCounts[key] || 0) + count;
+
+                    // Lógica para Planes de Acción: Distinto a "Sin Plan de Acción"
+                    if (planAccion && planAccion !== "" && planAccion.toLowerCase() !== "sin plan de acción") {
+                        history[date].actionPlansCount += 1;
+                    }
                 });
 
                 const sortedDates = Object.keys(history).sort((a, b) => {
@@ -535,8 +475,16 @@ const sidebar = document.getElementById('sidebar');
                 });
 
                 const last6 = sortedDates.slice(-6);
-                const labels = [], totals = [], percents = [];
+                
+                // Cálculo para los últimos 2 informes
+                const last2Dates = sortedDates.slice(-2);
+                let totalActionsLast2 = 0;
+                last2Dates.forEach(d => {
+                    totalActionsLast2 += history[d].actionPlansCount;
+                });
+                document.getElementById(`action-plan-count-${index}`).innerText = totalActionsLast2;
 
+                const labels = [], totals = [], percents = [];
                 last6.forEach(date => {
                     labels.push(date);
                     const data = history[date];
@@ -569,7 +517,8 @@ const sidebar = document.getElementById('sidebar');
                         Fecha: date,
                         Total_Eventos: totals[i],
                         Contribucion_Malos_Actores_Perc: percents[i],
-                        Tasa_Inundacion_Prom_Hr: floodRates[i]
+                        Tasa_Inundacion_Prom_Hr: floodRates[i],
+                        Planes_Accion: history[date].actionPlansCount
                     });
                 });
 
@@ -667,11 +616,10 @@ const sidebar = document.getElementById('sidebar');
             });
         }
 
-        // Función para exportar a Excel
         function exportToExcel() {
             if (globalDataStore.length === 0) return;
 
-            const header = ["Área", "Fecha", "Total Eventos", "% Contribución Malos Actores", "Tasa Inundación (Prom/Hr)"];
+            const header = ["Área", "Fecha", "Total Eventos", "% Contribución Malos Actores", "Tasa Inundación (Prom/Hr)", "Planes de Acción"];
             let csvContent = "\ufeff" + header.join(";") + "\n";
             
             globalDataStore.forEach(item => {
@@ -680,7 +628,8 @@ const sidebar = document.getElementById('sidebar');
                     item.Fecha,
                     item.Total_Eventos,
                     item.Contribucion_Malos_Actores_Perc + "%",
-                    item.Tasa_Inundacion_Prom_Hr.toString().replace('.', ',')
+                    item.Tasa_Inundacion_Prom_Hr.toString().replace('.', ','),
+                    item.Planes_Accion
                 ];
                 csvContent += row.join(";") + "\n";
             });
@@ -701,7 +650,6 @@ const sidebar = document.getElementById('sidebar');
                 await processArea(areasConfig[i], i);
             }
             
-            // Activar botón de exportar
             exportBtn.classList.remove('disabled');
             exportBtn.title = "Descargar resumen de datos";
             exportBtn.addEventListener('click', exportToExcel);
