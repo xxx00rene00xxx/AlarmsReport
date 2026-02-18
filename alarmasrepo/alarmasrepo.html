@@ -149,7 +149,51 @@
             padding-left: 8px;
             line-height: 1.2;
         }
+ /* TABLA ISA ULTRA COMPACTA */
+        .isa-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
 
+        .isa-table-compact {
+            width: 100%;
+            max-width: 800px;
+            font-size: 0.65rem;
+            border-collapse: collapse;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .isa-table-compact th {
+            background-color: var(--main-color);
+            color: white;
+            padding: 4px 8px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .isa-table-compact td {
+            padding: 3px 8px;
+            border: 1px solid #f1f5f9;
+            color: #334155;
+        }
+
+        .isa-table-compact .sub-header {
+            background-color: #f8fafc;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-align: center;
+        }
+
+        .isa-table-compact .value-target {
+            font-weight: 800;
+            text-align: center;
+            background-color: #fffaf5;
+        }
+        
         /* Nuevo estilo para el badge de Planes de Acción */
         .action-plan-summary {
             background-color: #fef3e7;
@@ -290,7 +334,60 @@
                 </button>
             </div>
         </header>
+      
+        <!-- TABLA ISA COMPACTA Y CENTRADA -->
+        <div class="isa-container">
+            <table class="isa-table-compact">
+                <thead>
+                    <tr>
+                        <th colspan="4" class="text-center italic">Métricas de Rendimiento ISA-18.2-2016</th>
+                    </tr>
+                    <tr class="sub-header">
+                        <td>Indicador de Control</td>
+                        <td>Probable Aceptable</td>
+                        <td>Máximo Manejable</td>
+                        <td>Objetivo Planta</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="font-semibold">Alarmas/Hora (Promedio)</td>
+                        <td class="text-center">~ 6</td>
+                        <td class="text-center">~ 12</td>
+                        <td class="value-target">&lt; 10</td>
+                    </tr>
+                    <tr>
+                        <td class="font-semibold">Contribución Top 10 (%)</td>
+                        <td class="text-center">1% - 5%</td>
+                        <td class="text-center">5% - 15%</td>
+                        <td class="value-target">Max 5%</td>
+                    </tr>
+                    <tr>
+                        <td class="font-semibold">Tiempo Inundación (%)**</td>
+                        <td class="text-center">&lt; 1%</td>
+                        <td class="text-center">~ 5%</td>
+                        <td class="value-target">&lt; 1%</td>
+                    </tr>
+                    <tr>
+                        <td class="font-semibold">Alarmas Obsoletas (Stale)</td>
+                        <td class="text-center">&lt; 5 diarias</td>
+                        <td class="text-center">&lt; 10 diarias</td>
+                        <td class="value-target">Cero</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+        </div>
+        <p class="text-center text-[#696158]" 
+                style="font-size: 10px; margin-top: -10px; line-height: 0; padding: 0;">
+                    **Definición Inundación: más de 10 alarmas en un periodo de 10 minutos
+                </p>
+        <p class="text-3xl text-[#696158] text-center opacity-0">
+            hh
+        </p>
 
+
+        
         <div id="matrix-container" class="grid-matrix"></div>
 
         <div id="loading-overlay" class="fixed inset-0 bg-white/95 flex items-center justify-center z-50 transition-opacity duration-500">
@@ -663,3 +760,4 @@
     </script>
 </body>
 </html>
+
