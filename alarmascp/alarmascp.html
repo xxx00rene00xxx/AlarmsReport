@@ -16,6 +16,17 @@
     <link rel="icon" type="image/png" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
     <link rel="shortcut icon" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
     <!-- Embedded Styles for Chart Containers -->
+
+	
+      /* BITACORA */
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+
+ // ********************************************************************************************//
+
+
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         :root {
@@ -183,8 +194,7 @@
         .spinner { border: 3px solid rgba(0,0,0,.1); border-top-color: #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .table-container { max-height: 70vh; overflow: auto; }
-        th { position: sticky; top: 0; background: #f8fafc; z-index: 10; border-bottom: 2px solid #e2e8f0; }
-		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        th { position: sticky; top: 0; background: #f8fafc; z-index: 10; border-bottom: 2px solid #e2e8f0; 
 
  // ********************************************************************************************//
  
@@ -707,12 +717,6 @@
 
 
 
-
-
-
-
-
-
 <!-- // ******************************************************************************************** -->
 
 		
@@ -730,8 +734,7 @@
     <!-- JavaScript for Data Visualization and Persistence -->
     <script type="module">
 
- // BITACORA
-		const { createClient } = supabase;
+          // BITACORA
         const SUPABASE_URL = "https://rtfjfutvbwfcvlodzcbv.supabase.co";
         const SUPABASE_KEY = "sb_publishable_EEWPWL2h6JQ99kQQI00EjQ_-I_gAxvV";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -740,12 +743,9 @@
         const ADMIN_EMAIL = "admin@alarms-report.com";
 
 
-
-
-  // ********************************************************************************************
+ // ********************************************************************************************
  
 
-		
 
         const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menuBtn');
@@ -1137,31 +1137,16 @@ function populateInformeSelector() {
             });
         });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // Importar módulos de Firebase solo para inicialización (aunque no se use Firestore)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
         // --- GLOBAL VARIABLES & CONFIG ---
         // ID de la hoja de cálculo de Google.
-        const SHEET_ID = '1J8CWv7nj78FlZyX8tz0TF_MT_tg5Wg6s'; 
+        const SHEET_ID = '17bdTu9MClYd-GlKU3Gc7NqGsXRZIJYdt'; 
         const GOOGLE_SHEET_URL= `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
         // ID de la hoja de cálculo.
-        const SHEET_ID_TEST = '1Iz8y32OZkdM-01b4aJxWmwDHB1TK5CVj';
+        const SHEET_ID_TEST = '1uUGAYE2MycF6TZuO6mo0vSvrQggyZY1j';
         const GOOGLE_SHEET_URL_TEST = `https://docs.google.com/spreadsheets/d/${SHEET_ID_TEST}/gviz/tq?tqx=out:json&gid=0`;
         let all_AlarmData = [];
         let allAlarmData = []; // Datos brutos de Google Sheets
@@ -1169,20 +1154,18 @@ function populateInformeSelector() {
         let paretoChartInstance = null; 
         let currentFilterDate = 'all'; // 'all' (por defecto, todos los datos) o una fecha específica
         // Almacenamiento global para todos los datos brutos.
+      
 
         window.exportarExcel = function() {
             const table = document.getElementById("tableToExport");
             if (!table) return;
             const wb = XLSX.utils.table_to_book(table, { sheet: "Reporte Alarmas" });
             const dateStr = new Date().toISOString().split('T')[0];
-            XLSX.writeFile(wb, `Reporte_Alarmas_073_${dateStr}.xlsx`);
+            XLSX.writeFile(wb, `Reporte_Alarmas_064_${dateStr}.xlsx`);
         };
 
 
-
-
 		
-
         /**
          * Obtiene y parsea los datos desde la URL de la API de Google Sheets.
          * @returns {Promise<Array<Object>>} Promesa que resuelve con los datos de las alarmas.
@@ -1547,15 +1530,7 @@ function populateInformeSelector() {
             const contributionPercentage = totalAlarmsFiltered > 0 ? ((top10EventsSum / totalAlarmsFiltered) * 100).toFixed(0) : 0;
             
             document.getElementById('kpi-top10-contribution').textContent = `${contributionPercentage}%`;
-
-
-
-
-
-
-
-
-            
+           
             // 5. Destruir instancia anterior si existe
             if (paretoChartInstance) {
                 paretoChartInstance.destroy();
@@ -1878,14 +1853,11 @@ function populateInformeSelector() {
 // Ambas funciones quedan registradas y se ejecutan en orden cuando ocurre el evento 'load'.
 
 
+
     </script>
 </body>
 
 </html>
-
-
-
-
 
 
 
