@@ -16,6 +16,12 @@
     <link rel="icon" type="image/png" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
     <link rel="shortcut icon" href="https://i.postimg.cc/ZRxbpbzZ/logo-rodape.png">
     <!-- Embedded Styles for Chart Containers -->
+
+	
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         :root {
@@ -175,6 +181,17 @@
             0% { opacity: 1; transform: scale(0.1); }
             100% { opacity: 0; transform: scale(1.5); }
         }
+
+        /* BITACORA */
+       .modal { transition: opacity 0.25s ease; z-index: 100; }
+        body.modal-active { overflow: hidden; }
+        .spinner { border: 3px solid rgba(0,0,0,.1); border-top-color: #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .table-container { max-height: 70vh; overflow: auto; }
+        th { position: sticky; top: 0; background: #f8fafc; z-index: 10; border-bottom: 2px solid #e2e8f0; }
+
+ // ********************************************************************************************//
+		
     </style>
    
    
@@ -481,6 +498,230 @@
             </div>
         </section>
         
+
+    <!--BITACORA -->
+        
+                <!-- Section 3: Pending Alarms (Table) - REINCORPORADA COLUMNA PLAN DE ACCIÓN (READ ONLY) -->
+        <section class="mb-12 rounded-xl border-l-4 border-[#EA7600]">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-8 border-b border-[#EA7600] bg-gradient-to-r from-[#ffffff] to-[#ffffff] text-[#696158]">
+                    <h2 class="text-2xl font-bold flex items-center gap-3">
+                        <span class="bg-slate-100 text-[#EA7600] p-2 rounded-lg text-xl"><i class="fa-solid fa-clipboard-list"></i></span>
+                        Bitacora Gestión de Alarmas
+                    </h2>
+                    <p class="mt-2 text-slate-600">
+                       Plan de Trabajo Gestión de Alarmas por Área.
+                    </p>
+                </div>
+
+              
+					<p class="mt-2 text-slate-600">
+                   
+                   </p>
+            <div id="auth-section" class="flex justify-end w-full">
+                <div id="user-info" class="hidden flex items-center gap-2">
+                    <span id="user-email" class="text-xs text-[#01BDAF] font-medium italic"></span>
+                    <button id="btn-logout" class="text-white bg-[#C7775E] hover:bg-[#BFB800] px-4 py-2 rounded text-sm font-bold transition-all">Cerrar Sesión</button>
+                </div>
+                <button id="btn-login-trigger" class="bg-[#EA7600] hover:bg-[#BFB800] text-white px-4 py-2 rounded text-sm font-bold transition-all">Acceso Editor</button>
+            </div>
+				<p class="mt-2 text-slate-600">
+                   
+                   </p>
+
+
+       <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-slate-200">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                <div class="lg:col-span-1">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Buscar</label>
+                    <input type="text" id="table-search" placeholder="Palabra clave..." 
+                           class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Filtrar Informe</label>
+                    <select id="filter-informe" class="w-full rounded-lg border-slate-300 border p-2 text-sm bg-white font-medium focus:ring-2 focus:ring-blue-500">
+                        <option value="all">TODOS</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Estado</label>
+                    <select id="filter-status" class="w-full rounded-lg border-slate-300 border p-2 text-sm bg-white font-medium focus:ring-2 focus:ring-blue-500">
+                        <option value="all">TODOS</option>
+                        <option value="PENDIENTE">PENDIENTE</option>
+                        <option value="EN PROCESO">EN PROCESO</option>
+                        <option value="FINALIZADA">FINALIZADA</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Compromiso</label>
+                    <select id="filter-commitment" class="w-full rounded-lg border-slate-300 border p-2 text-sm bg-white font-medium focus:ring-2 focus:ring-blue-500">
+                        <option value="all">TODOS</option>
+                        <option value="AL DIA">AL DÍA</option>
+                        <option value="ATRASADO">ATRASADO</option>
+                    </select>
+                </div>
+                <div class="flex justify-end">
+                    <button id="btn-new-task" class="hidden bg-[#75C3AD] hover:bg-[#01BDAF] text-white px-6 py-2 rounded-lg font-black shadow-md transition-all w-full text-xs">
+                        + NUEVO REGISTRO
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Tabla de Registros -->
+        <div class="p-0 table-container overflow-x-auto ">
+            <div class="table-container">
+                <table class="min-w-full divide-y divide-slate-200 text-left border-collapse" id="bitacora-table">
+                    <thead>
+                        <tr class="text-[10px] text-slate-500 uppercase font-black tracking-tighter">
+                            <th class="px-3 py-4">ID</th>
+                            <th class="px-3 py-4">Informe</th>
+                            <th class="px-3 py-4">Alarma</th>
+                            <th class="px-3 py-4">Descripción</th>
+                            <th class="px-3 py-4 min-w-[200px]">Compromiso/Plan de Acción</th>
+                            <th class="px-3 py-4">Responsable</th>
+                            <th class="px-3 py-4">F. Compromiso</th>
+                            <th class="px-3 py-4 text-center">Estado</th>
+                            <th class="px-3 py-4 text-right action-col hidden">Edición</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-100" id="table-body"></tbody>
+                </table>
+            </div>
+            <div id="loading-overlay" class="p-20 flex flex-col items-center justify-center text-slate-400">
+                <div class="spinner mb-4"></div>
+                <p id="loading-text" class="animate-pulse font-medium text-sm">Sincronizando datos...</p>
+            </div>
+            <div id="empty-state" class="hidden p-20 text-center text-slate-400 italic">No se encontraron registros que coincidan con los filtros.</div>
+        </div>
+
+      </section>
+        
+  <!-- Modal Formulario -->
+    <div id="modal-task" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center overflow-y-auto py-10 px-4">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900/80"></div>
+        <div class="bg-white w-full max-w-4xl mx-auto rounded-2xl shadow-2xl z-50 relative overflow-hidden">
+            <div class="bg-slate-100 px-6 py-4 border-b flex justify-between items-center">
+                <h3 id="modal-title" class="text-lg font-black text-slate-800 uppercase tracking-tight">Editor de Registro</h3>
+                <button type="button" class="modal-close-task text-slate-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+            </div>
+            <form id="form-task" class="p-6">
+                <input type="hidden" id="task-id">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">1. Seleccionar Informe (Fecha)</label>
+                        <select id="task-informe" required class="w-full rounded-lg border-slate-300 border p-2.5 bg-white text-sm focus:border-blue-500 outline-none"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">2. Seleccionar Alarmas</label>
+                        <select id="task-alarma" required disabled class="w-full rounded-lg border-slate-300 border p-2.5 bg-slate-50 text-sm focus:border-blue-500 outline-none cursor-not-allowed">
+                            <option value="">Primero seleccione Informe...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Aviso / OT</label>
+                        <input type="text" id="task-aviso" class="w-full rounded-lg border-slate-300 border p-2.5 text-sm">
+                    </div>
+
+                    <div class="md:col-span-3">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Descripción</label>
+                        <textarea id="task-descripcion" rows="3" readonly class="w-full rounded-lg border-slate-200 border bg-slate-50 p-3 text-sm font-medium text-slate-600 italic"></textarea>
+                    </div>
+
+                    <div class="md:col-span-3">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase mb-1 tracking-wider">Plan de Acción / Compromiso Adquirido</label>
+                        <textarea id="task-compromiso" rows="3" placeholder="Indique las medidas técnicas o administrativas a tomar..." class="w-full rounded-lg border-blue-200 border-2 p-3 text-sm focus:ring-4 focus:ring-blue-100 outline-none"></textarea>
+                    </div>
+
+                    <div><label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Solicitante</label><input type="text" id="task-solicitante" class="w-full rounded-lg border-slate-300 border p-2.5 text-sm"></div>
+                    <div><label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Responsable Ejecución</label><input type="text" id="task-responsable" class="w-full rounded-lg border-slate-300 border-2 p-2.5 text-sm"></div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Estado de Tarea</label>
+                        <select id="task-estado" class="w-full rounded-lg border-slate-300 border p-2.5 font-bold text-sm bg-white">
+                            <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="EN PROCESO">EN PROCESO</option>
+                            <option value="FINALIZADA">FINALIZADA</option>
+                        </select>
+                    </div>
+
+                    <div><label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Fecha de Solicitud</label><input type="date" id="task-f-solicitud" class="w-full rounded-lg border-slate-300 border p-2.5 text-sm"></div>
+                    <div><label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Fecha Compromiso</label><input type="date" id="task-f-compromiso" class="w-full rounded-lg border-slate-300 border-2 p-2.5 text-sm"></div>
+                    
+                    <div class="md:col-span-3">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase mb-1">Observaciones o Comentarios</label>
+                        <textarea id="task-observacion" rows="2" class="w-full rounded-lg border-slate-300 border p-3 text-sm"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end gap-3 border-t pt-6">
+                    <button type="button" class="modal-close-task px-6 py-2.5 text-slate-500 hover:bg-slate-100 rounded-lg font-bold text-sm uppercase">Cerrar</button>
+                    <button type="submit" class="px-10 py-2.5 bg-[#EA7600] text-white rounded-lg font-black hover:bg-[#BFB800] shadow-xl text-sm uppercase tracking-wide">Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="modal-login" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[200]">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900/90"></div>
+        <div class="bg-white w-80 mx-auto rounded-2xl shadow-2xl z-50 overflow-hidden relative border-[#EA7600]">
+            <div class="bg-slate-50 py-4 px-6 text-center border-b">
+                <p class="font-black text-xs uppercase tracking-widest text-slate-600">Autenticación Editor</p>
+            </div>
+            <div class="p-6">
+                <form id="form-login" class="space-y-4">
+                    <div class="relative">
+                        <input type="text" id="login-user-prefix" placeholder="Usuario" required 
+                               class="w-full rounded-lg border-slate-300 border p-3 pr-[130px] text-sm focus:ring-2 focus:ring-[#EA7600] outline-none">
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 pointer-events-none bg-slate-100 px-2 py-1 rounded border">
+                            @alarms-report.com
+                        </span>
+                    </div>
+                    <input type="password" id="login-pass" placeholder="Contraseña" required 
+                           class="w-full rounded-lg border-slate-300 border p-3 text-sm focus:ring-2 focus:ring-[#EA7600] outline-none">
+                    
+                    <button type="submit" id="btn-login-submit" class="w-full bg-[#EA7600]  text-white font-black py-3 rounded-lg hover:bg-[#BFB800] uppercase text-xs tracking-widest flex justify-center items-center transition-all shadow-lg active:scale-95">
+                        <span id="login-text">Entrar</span>
+                        <div id="login-spinner" class="spinner hidden border-white/30 border-t-white w-4 h-4 ml-2"></div>
+                    </button>
+                    
+                    <p id="login-error" class="text-red-500 text-[10px] font-bold uppercase text-center hidden p-2 bg-red-50 rounded"></p>
+                </form>
+            </div>
+            <button type="button" class="modal-close-login absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Borrado (Sustituye a confirm nativo) -->
+    <div id="modal-confirm-delete" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[300]">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900/90"></div>
+        <div class="bg-white w-full max-w-sm mx-auto rounded-2xl shadow-2xl z-50 overflow-hidden relative p-8 text-center">
+            <div class="bg-red-100 text-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-black text-slate-800 mb-2">¿Eliminar Registro?</h3>
+            <p class="text-sm text-slate-500 mb-6">Esta acción no se puede deshacer. Se borrará permanentemente el registro <span id="delete-id-label" class="font-bold text-red-600"></span>.</p>
+            <div class="flex gap-3">
+                <button id="btn-cancel-delete" class="flex-1 px-4 py-2.5 bg-slate-100 text-slate-600 rounded-lg font-bold text-sm uppercase hover:bg-slate-200">Cancelar</button>
+                <button id="btn-confirm-delete-action" class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-black text-sm uppercase hover:bg-red-700 shadow-lg">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+<!-- // ******************************************************************************************** -->
+
+
         <!-- Elemento para mostrar errores de Firebase/Datos -->
         <div id="error-message"></div>
 
@@ -495,11 +736,361 @@
     <!-- JavaScript for Data Visualization and Persistence -->
     <script type="module">
 
+  // BITACORA
+        const SUPABASE_URL = "https://rtfjfutvbwfcvlodzcbv.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_EEWPWL2h6JQ99kQQI00EjQ_-I_gAxvV";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const SHEET_ID2 = "1j5-n_FgV9gBakV8wPe2F0Yo1nXa9GT8q";
+        const EMAIL_DOMAIN = "@alarms-report.com";
+        const ADMIN_EMAIL = "admin@alarms-report.com";
 
+
+
+
+  // ********************************************************************************************
     const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menuBtn');
         const heroSection = document.getElementById('heroSection');
         const dotContainer = document.getElementById('dotContainer');
+
+		   // BITACORA
+        let session = null;
+        let allTasks = [];
+        let excelData = []; 
+        let pendingDeleteId = null; // Variable para rastrear qué borrar
+  // ********************************************************************************************
+
+
+
+// BITACORA
+async function init() {
+            setupEventListeners();
+            
+            _supabase.auth.onAuthStateChange((event, _session) => {
+                session = _session;
+                updateAuthUI();
+            });
+
+            const { data: { session: initialSession } } = await _supabase.auth.getSession();
+            session = initialSession;
+            updateAuthUI();
+
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(loadExcelData);
+            await loadTasks();
+        }
+
+
+function formatDate(value) {
+            if (!value) return "";
+            let date = value instanceof Date ? value : new Date(value);
+            if (isNaN(date.getTime())) return String(value);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+
+        // Función para comparar fechas (YYYY-MM-DD)
+        function checkAtrasado(fechaCompromiso, estado) {
+            if (!fechaCompromiso || estado === 'FINALIZADA') return false;
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            const fechaC = new Date(fechaCompromiso);
+            fechaC.setHours(0,0,0,0);
+            return fechaC < hoy;
+        }
+
+
+        function loadExcelData() {
+            const query = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID2}/gviz/tq?tqx=out:json`);
+            query.send(response => {
+                if (response.isError()) return;
+                const dt = response.getDataTable();
+                const numRows = dt.getNumberOfRows();
+                excelData = [];
+                for (let i = 0; i < numRows; i++) {
+                    excelData.push({
+                        idx: i,
+                        event: dt.getValue(i, 0) || "N/A",      
+                        module: dt.getValue(i, 1) || "Sin Módulo",
+                        description: dt.getValue(i, 2) || "Sin Descripción",
+                        informeRaw: dt.getValue(i, 11)        
+                    });
+                }
+                populateInformeSelector();
+            });
+        }
+
+function populateInformeSelector() {
+            const select = document.getElementById('task-informe');
+            const fechas = [...new Set(excelData.map(d => formatDate(d.informeRaw)))].filter(Boolean).sort().reverse();
+            select.innerHTML = '<option value="">Seleccione Informe...</option>' + 
+                fechas.map(f => `<option value="${f}">${f}</option>`).join('');
+        }
+
+        function updateTableFilters() {
+            const selectInforme = document.getElementById('filter-informe');
+            const currentVal = selectInforme.value;
+            const informesPresentes = [...new Set(allTasks.map(t => t.informe))].filter(Boolean).sort().reverse();
+            
+            selectInforme.innerHTML = '<option value="all">TODOS</option>' + 
+                informesPresentes.map(i => `<option value="${i}" ${i === currentVal ? 'selected' : ''}>${i}</option>`).join('');
+        }
+
+    
+        function handleAlarmaChange(e) {
+            const selectedIdx = e.target.value;
+            const item = excelData.find(d => String(d.idx) === String(selectedIdx));
+            if (item) {
+                document.getElementById('task-descripcion').value = `EVENTOS [${item.event}]: ${item.description}`;
+            }
+        }
+ async function loadTasks() {
+            const overlay = document.getElementById('loading-overlay');
+            const { data, error } = await _supabase.from('bitacora_maq').select('*').order('id', { ascending: false });
+            if (!error) {
+                allTasks = data || [];
+                updateTableFilters();
+                renderTable();
+            }
+            overlay.classList.add('hidden');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            const search = document.getElementById('table-search').value.toLowerCase();
+            const statusF = document.getElementById('filter-status').value.toUpperCase();
+            const informeF = document.getElementById('filter-informe').value;
+            const commitmentF = document.getElementById('filter-commitment').value;
+            
+            const filtered = allTasks.filter(t => {
+                const isAtrasado = checkAtrasado(t.fecha_compromiso, t.estado);
+                const matchSearch = !search || Object.values(t).some(v => String(v).toLowerCase().includes(search));
+                const matchStatus = statusF === 'ALL' || String(t.estado).toUpperCase() === statusF;
+                const matchInforme = informeF === 'all' || t.informe === informeF;
+                const matchCommitment = commitmentF === 'all' || 
+                                       (commitmentF === 'ATRASADO' && isAtrasado) || 
+                                       (commitmentF === 'AL DIA' && !isAtrasado);
+
+                return matchSearch && matchStatus && matchInforme && matchCommitment;
+            });
+
+            tbody.innerHTML = '';
+            document.getElementById('empty-state').classList.toggle('hidden', filtered.length > 0);
+
+            filtered.forEach(task => {
+                const s = String(task.estado || 'PENDIENTE').toUpperCase();
+                const isAtrasado = checkAtrasado(task.fecha_compromiso, task.estado);
+                
+                const sClass = s === 'FINALIZADA' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 
+                              (s === 'EN PROCESO' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-orange-100 text-orange-700 border-orange-200');
+                
+                const dateClass = isAtrasado ? 'text-red-600 font-black bg-red-50 px-1 rounded' : 'text-slate-600 font-bold';
+               
+                const userEmail = session?.user?.email;
+                const isAdmin = userEmail === ADMIN_EMAIL;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-blue-50/40 transition-colors border-b text-[10.5px] text-slate-700 font-medium";
+                tr.innerHTML = `
+                    <td class="px-3 py-4 font-black text-slate-300">#${task.id}</td>
+                    <td class="px-3 py-4 whitespace-nowrap font-bold">${task.informe || '-'}</td>
+                    <td class="px-3 py-4 font-bold text-#EA7600">${task.alarma || '-'}</td>
+                    <td class="px-3 py-4 max-w-xs truncate" title="${task.descripcion}">${task.descripcion || '-'}</td>
+                    <td class="px-3 py-4 italic font-semibold text-slate-600">${task.compromiso_plan_accion || '-'}</td>
+                    <td class="px-3 py-4 font-bold text-#EA7600">${task.responsable || '-'}</td>
+                    <td class="px-3 py-4">
+                        <span class="${dateClass}">${task.fecha_compromiso ? formatDate(task.fecha_compromiso) : '-'}</span>
+                    </td>
+                    <td class="px-3 py-4 text-center">
+                        <span class="px-2 py-1 rounded-md text-[9px] font-black uppercase border-2 ${sClass}">${s}</span>
+                    </td>
+                    <td class="px-3 py-4 text-right action-col ${!session ? 'hidden' : ''}">
+                        <div class="flex justify-end gap-2">
+                        <button onclick="editTask(${task.id})" class="text-white hover:text-white font-black px-2 py-1 bg-[#75C3AD] hover:bg-[#01BDAF] rounded transition-all active:scale-90">EDITAR</button>
+                        ${isAdmin ? `<button onclick="openDeleteModal(${task.id})" class="text-red-600 hover:text-red-900 font-black px-2 py-1 bg-red-50 rounded shadow-sm border border-red-200">BORRAR</button>` : ''}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // CONTROL DE MODAL DE BORRADO (REMPLAZA CONFIRM)
+        window.openDeleteModal = (id) => {
+            pendingDeleteId = id;
+            document.getElementById('delete-id-label').textContent = `#${id}`;
+            toggleModal('modal-confirm-delete');
+        };
+
+        const handleConfirmDelete = async () => {
+            if (!pendingDeleteId) return;
+            
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user || user.email !== ADMIN_EMAIL) {
+                alert("No tienes permisos suficientes.");
+                toggleModal('modal-confirm-delete');
+                return;
+            }
+
+            try {
+                const { error } = await _supabase.from('bitacora_maq').delete().eq('id', pendingDeleteId);
+                if (error) throw error;
+                
+                allTasks = allTasks.filter(t => t.id !== pendingDeleteId);
+                renderTable();
+                toggleModal('modal-confirm-delete');
+                pendingDeleteId = null;
+            } catch (err) {
+                console.error("Delete Error:", err);
+                alert("Error al eliminar el registro.");
+            }
+        };
+
+
+   function toggleModal(id) {
+            const m = document.getElementById(id);
+            if (!m) return;
+            const open = m.classList.contains('opacity-0');
+            m.classList.toggle('opacity-0', !open);
+            m.classList.toggle('pointer-events-none', !open);
+            document.body.classList.toggle('modal-active', open);
+        }
+
+        async function saveTask(e) {
+            e.preventDefault();
+            if (!session) return;
+            
+            const id = document.getElementById('task-id').value;
+            const alarmaSelect = document.getElementById('task-alarma');
+            const alarmaTextoCompleto = alarmaSelect.options[alarmaSelect.selectedIndex].text;
+
+            const data = {
+                informe: document.getElementById('task-informe').value,
+                alarma: alarmaTextoCompleto.split(' (')[0],
+                descripcion: document.getElementById('task-descripcion').value,
+                compromiso_plan_accion: document.getElementById('task-compromiso').value,
+                solicitante: document.getElementById('task-solicitante').value,
+                responsable: document.getElementById('task-responsable').value,
+                fecha_solicitud: document.getElementById('task-f-solicitud').value || null,
+                fecha_compromiso: document.getElementById('task-f-compromiso').value || null,
+                aviso_ot: document.getElementById('task-aviso').value,
+                estado: document.getElementById('task-estado').value,
+                observacion: document.getElementById('task-observacion').value,
+                ultima_modificacion: new Date().toISOString(),
+                quien_modifico: session.user.email
+            };
+            
+            const res = id ? await _supabase.from('bitacora_maq').update(data).eq('id', id) : await _supabase.from('bitacora_maq').insert([data]);
+            if (!res.error) { toggleModal('modal-task'); loadTasks(); }
+            else alert(res.error.message);
+        }
+
+         window.editTask = async (id) => {
+            if (!session) return;
+            const t = allTasks.find(x => x.id === id);
+            if (!t) return;
+
+            document.getElementById('modal-title').textContent = "Modificar Registro #" + t.id;
+            document.getElementById('task-id').value = t.id;
+            document.getElementById('task-informe').value = t.informe || '';
+            handleInformeChange(t.informe); 
+            
+            // Delay para asegurar que el select de alarmas se pueble antes de asignar valor
+            await new Promise(r => setTimeout(r, 200));
+
+            const select = document.getElementById('task-alarma');
+            const storedAlarma = String(t.alarma || '').toLowerCase().trim();
+            for(let i=0; i<select.options.length; i++) {
+                if(select.options[i].text.toLowerCase().startsWith(storedAlarma)) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+            
+            document.getElementById('task-descripcion').value = t.descripcion || '';
+            document.getElementById('task-compromiso').value = t.compromiso_plan_accion || '';
+            document.getElementById('task-solicitante').value = t.solicitante || '';
+            document.getElementById('task-responsable').value = t.responsable || '';
+            document.getElementById('task-f-solicitud').value = t.fecha_solicitud || '';
+            document.getElementById('task-f-compromiso').value = t.fecha_compromiso || '';
+            document.getElementById('task-aviso').value = t.aviso_ot || '';
+            document.getElementById('task-estado').value = (t.estado || 'PENDIENTE').toUpperCase();
+            document.getElementById('task-observacion').value = t.observacion || '';
+            
+            toggleModal('modal-task');
+        };
+
+        function handleInformeChange(selectedFecha) {
+            const alarmaSelect = document.getElementById('task-alarma');
+            if (!selectedFecha) {
+                alarmaSelect.innerHTML = '<option value="">Seleccione Informe...</option>';
+                alarmaSelect.disabled = true;
+                return;
+            }
+            const dataInforme = excelData.filter(d => formatDate(d.informeRaw) === selectedFecha);
+            alarmaSelect.innerHTML = '<option value="">Seleccione Alarma...</option>' + 
+                dataInforme.map(d => `<option value="${d.idx}">${d.module} (Eventos: ${d.event})</option>`).join('');
+            alarmaSelect.disabled = false;
+        }
+
+
+        function setupEventListeners() {
+            document.getElementById('btn-login-trigger').onclick = () => toggleModal('modal-login');
+            document.getElementById('form-login').onsubmit = async (e) => {
+                e.preventDefault();
+                const prefix = document.getElementById('login-user-prefix').value.trim();
+                const pass = document.getElementById('login-pass').value;
+                const fullEmail = prefix.includes('@') ? prefix : prefix + EMAIL_DOMAIN;
+                const { error } = await _supabase.auth.signInWithPassword({ email: fullEmail, password: pass });
+                if (error) {
+                    document.getElementById('login-error').textContent = error.message;
+                    document.getElementById('login-error').classList.remove('hidden');
+                } else {
+                    toggleModal('modal-login');
+                }
+            };
+            document.getElementById('btn-logout').onclick = () => _supabase.auth.signOut();
+            document.getElementById('btn-new-task').onclick = () => {
+                document.getElementById('modal-title').textContent = "Nuevo Registro de Tarea";
+                document.getElementById('form-task').reset();
+                document.getElementById('task-id').value = '';
+                handleInformeChange("");
+                toggleModal('modal-task');
+            };
+            document.getElementById('form-task').onsubmit = saveTask;
+            document.getElementById('table-search').oninput = renderTable;
+            document.getElementById('filter-status').onchange = renderTable;
+            document.getElementById('filter-informe').onchange = renderTable;
+            document.getElementById('filter-commitment').onchange = renderTable;
+            document.getElementById('task-informe').onchange = (e) => handleInformeChange(e.target.value);
+            document.getElementById('task-alarma').onchange = (e) => {
+                const item = excelData.find(d => String(d.idx) === String(e.target.value));
+                if (item) document.getElementById('task-descripcion').value = item.description;
+            };
+
+            // Eventos del Modal de Confirmación
+            document.getElementById('btn-cancel-delete').onclick = () => toggleModal('modal-confirm-delete');
+            document.getElementById('btn-confirm-delete-action').onclick = handleConfirmDelete;
+
+            document.querySelectorAll('.modal-close-login, .modal-close-task').forEach(b => b.onclick = () => toggleModal(b.closest('.modal').id));
+        }
+
+        function updateAuthUI() {
+            const isLoggedIn = !!session;
+            document.getElementById('btn-login-trigger').classList.toggle('hidden', isLoggedIn);
+            document.getElementById('user-info').classList.toggle('hidden', !isLoggedIn);
+            document.getElementById('btn-new-task').classList.toggle('hidden', !isLoggedIn);
+            if (isLoggedIn) document.getElementById('user-email').textContent = session.user.email;
+            renderTable();
+        }
+
+        init();
+
+
+ // ********************************************************************************************
 
         function createDot(x, y) {
             const dot = document.createElement('div');
