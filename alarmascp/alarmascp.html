@@ -184,6 +184,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .table-container { max-height: 70vh; overflow: auto; }
         th { position: sticky; top: 0; background: #f8fafc; z-index: 10; border-bottom: 2px solid #e2e8f0; }
+		<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
  // ********************************************************************************************//
  
@@ -467,9 +468,6 @@
                    </p>
 
 
-
-
-				
                 <!-- Contenedor con scroll vertical -->
                 <div class="p-0 table-container overflow-x-auto ">
                     <table class="w-full text-left border-collapse" id="tableToExport">
@@ -733,10 +731,11 @@
     <script type="module">
 
  // BITACORA
+		
         const SUPABASE_URL = "https://rtfjfutvbwfcvlodzcbv.supabase.co";
         const SUPABASE_KEY = "sb_publishable_EEWPWL2h6JQ99kQQI00EjQ_-I_gAxvV";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const SHEET_ID2 = "17bdTu9MClYd-GlKU3Gc7NqGsXRZIJYdt";
+        const SHEET_ID2 = "1J8CWv7nj78FlZyX8tz0TF_MT_tg5Wg6s";
         const EMAIL_DOMAIN = "@alarms-report.com";
         const ADMIN_EMAIL = "admin@alarms-report.com";
 
@@ -748,7 +747,7 @@
 
 		
 
-    const sidebar = document.getElementById('sidebar');
+        const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menuBtn');
         const heroSection = document.getElementById('heroSection');
         const dotContainer = document.getElementById('dotContainer');
